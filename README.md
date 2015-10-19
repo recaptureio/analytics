@@ -1,6 +1,12 @@
-Methods
+## Overview
+- Async loaded
+- Methods called before lib is loaded will be put in queue and called when ready
+- Utilizes v4 UUID for customer tracking
+- Small footprint
 
-##### `ra('init', [apiKey|string|required])`
+## Methods
+
+#### `ra('init', [apiKey|string|required])`
 
 Required to be called before any other methods.
 
@@ -12,7 +18,7 @@ ra('init', ['abc123']);
 
 ---
 
-##### `ra('page')`
+#### `ra('page')`
 
 Tracks page view information.
 
@@ -24,7 +30,7 @@ ra('page');
 
 ---
 
-##### `ra('product', [attributes|object|optional])`
+#### `ra('product', [attributes|object|optional])`
 
 Tracks product view information. Will send anything passed into attributes Object to recapture.
 
@@ -38,7 +44,7 @@ ra('product', [{
 
 ---
 
-##### `ra('email', [cartID|string|required])`
+#### `ra('email', [cartID|string|required])`
 
 Watches the page for any email address being input into a form and associates it to the internal tracked customer.
 
