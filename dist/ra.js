@@ -48,10 +48,11 @@
 	var state = __webpack_require__(1);
 
 	var customer = __webpack_require__(34)(state);
-	var init = __webpack_require__(36)(state, customer);
-	var page = __webpack_require__(37)(state);
-	var product = __webpack_require__(38)(state);
-	var email = __webpack_require__(39)(state, customer);
+	var product = __webpack_require__(36)(state);
+	var init = __webpack_require__(37)(state, customer);
+	var page = __webpack_require__(38)(state);
+	var product = __webpack_require__(39)(state);
+	var email = __webpack_require__(40)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -115,6 +116,8 @@
 	var SET_CART_ID = actions.SET_CART_ID;
 	var SET_CUSTOMER_ID = actions.SET_CUSTOMER_ID;
 	var SET_CUSTOMER_EMAIL = actions.SET_CUSTOMER_EMAIL;
+	var SEND_PAGE = actions.SEND_PAGE;
+	var SEND_PRODUCT = actions.SEND_PRODUCT;
 
 	/**
 	 * Our default application state
@@ -124,7 +127,8 @@
 	  api_key: null,
 	  cart_id: null,
 	  customer_id: null,
-	  customer_email: null
+	  customer_email: null,
+	  collector: null
 	};
 
 	/**
@@ -150,6 +154,22 @@
 
 	    case SET_CUSTOMER_EMAIL:
 	      state.customer_email = action.payload;
+	      return state;
+
+	    case SEND_PAGE:
+	      if (action.payload.hasOwnProperty('data')) {
+	        if (action.payload.data.hasOwnProperty('collector')) {
+	          state.collector = action.payload.data.collector;
+	        }
+	      }
+	      return state;
+
+	    case SEND_PRODUCT:
+	      if (action.payload.hasOwnProperty('data')) {
+	        if (action.payload.data.hasOwnProperty('collector')) {
+	          state.collector = action.payload.data.collector;
+	        }
+	      }
 	      return state;
 
 	    default:
@@ -3175,6 +3195,32 @@
 
 /***/ },
 /* 36 */
+/***/ function(module, exports) {
+
+	module.exports = function(state) {
+
+	  function injectIframe(src) {
+	    var iframe = document.createElement('iframe');
+	    iframe.src = src;
+	    iframe.width = 500;
+	    iframe.height = 500;
+
+	    document.body.appendChild(iframe);
+	  }
+
+	  state.subscribe(function() {
+	    var currentState = state.getState();
+
+	    if (currentState.collector) {
+	      injectIframe(currentState.collector);
+	    }
+	  });
+
+	};
+
+
+/***/ },
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var storage = __webpack_require__(3);
@@ -3196,7 +3242,7 @@
 
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendPage = __webpack_require__(2).sendPage;
@@ -3235,7 +3281,7 @@
 
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendProduct = __webpack_require__(2).sendProduct;
@@ -3253,11 +3299,11 @@
 
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(40);
-	var eventListener = __webpack_require__(41);
+	var isEmail = __webpack_require__(41);
+	var eventListener = __webpack_require__(42);
 	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
@@ -3334,7 +3380,7 @@
 
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {
@@ -3345,7 +3391,7 @@
 
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){

@@ -1,6 +1,7 @@
 var state = require('state');
 
 var customer = require('customer')(state);
+var product = require('collector')(state);
 var init = require('methods/init')(state, customer);
 var page = require('methods/page')(state);
 var product = require('methods/product')(state);

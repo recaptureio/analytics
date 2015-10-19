@@ -19,6 +19,8 @@ var SET_API_KEY = actions.SET_API_KEY;
 var SET_CART_ID = actions.SET_CART_ID;
 var SET_CUSTOMER_ID = actions.SET_CUSTOMER_ID;
 var SET_CUSTOMER_EMAIL = actions.SET_CUSTOMER_EMAIL;
+var SEND_PAGE = actions.SEND_PAGE;
+var SEND_PRODUCT = actions.SEND_PRODUCT;
 
 /**
  * Our default application state
@@ -28,7 +30,8 @@ var defaultState = {
   api_key: null,
   cart_id: null,
   customer_id: null,
-  customer_email: null
+  customer_email: null,
+  collector: null
 };
 
 /**
@@ -54,6 +57,22 @@ function reducer(state, action) {
 
     case SET_CUSTOMER_EMAIL:
       state.customer_email = action.payload;
+      return state;
+
+    case SEND_PAGE:
+      if (action.payload.hasOwnProperty('data')) {
+        if (action.payload.data.hasOwnProperty('collector')) {
+          state.collector = action.payload.data.collector;
+        }
+      }
+      return state;
+
+    case SEND_PRODUCT:
+      if (action.payload.hasOwnProperty('data')) {
+        if (action.payload.data.hasOwnProperty('collector')) {
+          state.collector = action.payload.data.collector;
+        }
+      }
       return state;
 
     default:
