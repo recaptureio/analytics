@@ -3,10 +3,10 @@ var s3 = require('s3');
 var semver = require('./package').version;
 var stableVersion = semver.split('.')[0];
 
-var sdkFile = path.join(__dirname, 'dist/recapture.min.js');
-var sdkKey = 'v' + stableVersion + '/' + 'recapture.min.js';
+var sdkFile = path.join(__dirname, 'dist/ra.min.js');
+var sdkKey = 'analytics/v' + stableVersion + '/' + 'ra.min.js';
 var loaderFile = path.join(__dirname, 'dist/loader.min.js');
-var loaderKey = 'loader.min.js';
+var loaderKey = 'analytics/loader.min.js';
 
 function upload(localFile, key) {
   var options = require('./aws');
