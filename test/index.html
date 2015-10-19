@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>Recapture Analytics test page</title>
+  </head>
+  <body>
+    <input type="email">
+    <script src="../dist/loader.js"></script>
+    <script>
+      ra('init', ['abc']);
+      ra('email', ['123']);
+      ra('page');
+      ra('product', [{
+        sku: '123'
+      }]);
+    </script>
+  </body>
+</html>
