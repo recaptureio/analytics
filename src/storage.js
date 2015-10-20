@@ -1,4 +1,5 @@
 var store = require('store');
+var cookies = require('cookies-js');
 
 /**
  * Gets an item from storage
@@ -18,6 +19,7 @@ function get(key) {
  * @return {String} The items value
  */
 function set(key, value) {
+  cookies.set(key, value, { expires: Infinity });
   return store.set(key, value);
 }
 
@@ -38,6 +40,7 @@ function has(key) {
  * @return {Object} Not sure
  */
 function remove(key) {
+  cookies.expire(key);
   return store.remove(key);
 }
 

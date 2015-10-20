@@ -14,6 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "check-email-valid": "^1.0.0",
+    "cookie": "^0.2.2",
+    "cookies-js": "^1.2.2",
     "eventlistener": "0.0.1",
     "node-uuid": "^1.4.3",
     "qwest": "^2.2.0",

@@ -4,6 +4,10 @@
 - Utilizes v4 UUID for customer tracking
 - Small footprint
 
+Local storage and cookies keys:
+
+`ra_customer_id` and `ra_customer_email` (if set)
+
 ## Methods
 
 *`ra('init', [apiKey|string|required])`*
