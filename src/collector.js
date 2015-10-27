@@ -1,19 +1,38 @@
 module.exports = function(state) {
 
+  function initializeIframe(iframe) {
+    var win = iframe.contentWindow;
+    var doc = iframe.contentDocument || iframe.contentWindow.document;
+
+    if (doc.readyState === 'complete') {
+      win.addEventListener('load', function() {
+        console.log('loaded');
+      }, false);
+    }
+  }
+
   function injectIframe(src) {
     var iframe = document.createElement('iframe');
     iframe.src = src;
-    iframe.width = 500;
-    iframe.height = 500;
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.position = 'fixed';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.border = 'none';
 
     document.body.appendChild(iframe);
+
+    return iframe;
   }
 
   state.subscribe(function() {
     var currentState = state.getState();
 
     if (currentState.collector) {
-      injectIframe(currentState.collector);
+      initializeIframe(injectIframe(currentState.collector));
     }
   });
 

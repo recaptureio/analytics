@@ -1,7 +1,7 @@
 var state = require('state');
 
 var customer = require('customer')(state);
-var product = require('collector')(state);
+var collector = require('collector')(state);
 var init = require('methods/init')(state, customer);
 var page = require('methods/page')(state);
 var product = require('methods/product')(state);
@@ -27,14 +27,14 @@ function create() {
 
   // run through our queue and apply methods as needed
   if (queue.length) {
-    for (var i in queue) {
-      var method = queue[i].shift();
-      var args = queue[i].shift();
+    queue.forEach(function(q) {
+      var method = q.shift();
+      var args = q.shift();
 
       if (obj[method]) {
         obj[method].apply(obj, args);
       }
-    }
+    });
   }
 
   return obj;

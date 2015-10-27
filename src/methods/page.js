@@ -1,11 +1,11 @@
 var sendPage = require('actions').sendPage;
 
 /**
- * Get url data for the current page
- * @method getUrlData
+ * Get page data for the current page
+ * @method getPageData
  * @return {Object} Parsed url data
  */
-function getUrlData() {
+function getPageData() {
   var parser = document.createElement('a');
   parser.href = window.location.href;
 
@@ -22,7 +22,7 @@ function getUrlData() {
 
 module.exports = function(state) {
   var currentState = state.getState();
-  var data = getUrlData();
+  var data = getPageData();
 
   return function() {
     data.customer = currentState.customer_id;

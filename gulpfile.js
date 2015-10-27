@@ -4,11 +4,11 @@ var rename = require('gulp-rename');
 
 var uglifyConfig = require('./uglify');
 
-gulp.task('loader', function() {
+gulp.task('queue', function() {
   gulp.src('./src/loader.js')
     .pipe(uglify(uglifyConfig))
-    .pipe(rename('loader.min.js'))
+    .pipe(rename('ra-queue.min.js'))
     .pipe(gulp.dest('./dist/'))
 });
 
-gulp.task('default', ['loader']);
+gulp.task('default', ['queue']);

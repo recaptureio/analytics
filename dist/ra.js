@@ -1,4 +1,5 @@
-/*! Recapture.io v1.0.0 | MIT & BSD */
+/*! Recapture.io analytics v1.0.0 | MIT & BSD */
+var ra =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -48,7 +49,7 @@
 	var state = __webpack_require__(1);
 
 	var customer = __webpack_require__(35)(state);
-	var product = __webpack_require__(37)(state);
+	var collector = __webpack_require__(37)(state);
 	var init = __webpack_require__(38)(state, customer);
 	var page = __webpack_require__(39)(state);
 	var product = __webpack_require__(40)(state);
@@ -74,14 +75,14 @@
 
 	  // run through our queue and apply methods as needed
 	  if (queue.length) {
-	    for (var i in queue) {
-	      var method = queue[i].shift();
-	      var args = queue[i].shift();
+	    queue.forEach(function(q) {
+	      var method = q.shift();
+	      var args = q.shift();
 
 	      if (obj[method]) {
 	        obj[method].apply(obj, args);
 	      }
-	    }
+	    });
 	  }
 
 	  return obj;
@@ -198,7 +199,9 @@
 
 	function sendRequest(endpoint, data) {
 	  var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-	  var url = protocol + 'recapture.io/beacon/' + endpoint;
+	  var url =  false ?
+	    protocol + 'recapture.io/beacon/' + endpoint :
+	    protocol + 'localhost:4000/beacon/' + endpoint;
 
 	  return request.post(
 	    url,
@@ -3380,20 +3383,39 @@
 
 	module.exports = function(state) {
 
+	  function initializeIframe(iframe) {
+	    var win = iframe.contentWindow;
+	    var doc = iframe.contentDocument || iframe.contentWindow.document;
+
+	    if (doc.readyState === 'complete') {
+	      win.addEventListener('load', function() {
+	        console.log('loaded');
+	      }, false);
+	    }
+	  }
+
 	  function injectIframe(src) {
 	    var iframe = document.createElement('iframe');
 	    iframe.src = src;
-	    iframe.width = 500;
-	    iframe.height = 500;
+	    iframe.width = '100%';
+	    iframe.height = '100%';
+	    iframe.style.width = '100%';
+	    iframe.style.height = '100%';
+	    iframe.style.position = 'fixed';
+	    iframe.style.top = '0';
+	    iframe.style.left = '0';
+	    iframe.style.border = 'none';
 
 	    document.body.appendChild(iframe);
+
+	    return iframe;
 	  }
 
 	  state.subscribe(function() {
 	    var currentState = state.getState();
 
 	    if (currentState.collector) {
-	      injectIframe(currentState.collector);
+	      initializeIframe(injectIframe(currentState.collector));
 	    }
 	  });
 
@@ -3429,11 +3451,11 @@
 	var sendPage = __webpack_require__(2).sendPage;
 
 	/**
-	 * Get url data for the current page
-	 * @method getUrlData
+	 * Get page data for the current page
+	 * @method getPageData
 	 * @return {Object} Parsed url data
 	 */
-	function getUrlData() {
+	function getPageData() {
 	  var parser = document.createElement('a');
 	  parser.href = window.location.href;
 
@@ -3450,7 +3472,7 @@
 
 	module.exports = function(state) {
 	  var currentState = state.getState();
-	  var data = getUrlData();
+	  var data = getPageData();
 
 	  return function() {
 	    data.customer = currentState.customer_id;
@@ -3552,7 +3574,7 @@
 	  function setEmail(email) {
 	    customer.email(email);
 	  }
-
+	  
 	  return function(cartId) {
 	    attachListeners();
 	    state.dispatch(setCartId(cartId));

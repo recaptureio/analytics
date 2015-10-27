@@ -18,17 +18,15 @@ if (isProduction) {
   plugins.push(new webpack.optimize.UglifyJsPlugin(uglifyConfig));
 }
 
-plugins.push(new webpack.BannerPlugin('Recapture.io v' + version + ' | MIT & BSD'));
+plugins.push(new webpack.BannerPlugin('Recapture.io analytics v' + version + ' | MIT & BSD'));
 
 module.exports = {
-  entry: {
-    ra: path.join(__dirname, 'src/index.js')
-  },
+  entry: path.join(__dirname, 'src/index.js'),
 
   output: {
     path: path.join(__dirname, 'dist/'),
-    filename: isProduction ? '[name].min.js' : '[name].js',
-    libraryTarget: 'var'
+    filename: isProduction ? 'ra.min.js' : 'ra.js',
+    library: 'ra'
   },
 
   resolve: {

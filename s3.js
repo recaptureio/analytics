@@ -5,8 +5,8 @@ var stableVersion = semver.split('.')[0];
 
 var sdkFile = path.join(__dirname, 'dist/ra.min.js');
 var sdkKey = 'analytics/v' + stableVersion + '/' + 'ra.min.js';
-var loaderFile = path.join(__dirname, 'dist/loader.min.js');
-var loaderKey = 'analytics/loader.min.js';
+var loaderFile = path.join(__dirname, 'dist/ra-queue.min.js');
+var loaderKey = 'analytics/ra-queue.min.js';
 
 function upload(localFile, key) {
   var options = require('./aws');

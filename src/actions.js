@@ -4,7 +4,9 @@ var request = require('qwest');
 
 function sendRequest(endpoint, data) {
   var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-  var url = protocol + 'recapture.io/beacon/' + endpoint;
+  var url = process.env.NODE_ENV === 'production' ?
+    protocol + 'recapture.io/beacon/' + endpoint :
+    protocol + 'localhost:4000/beacon/' + endpoint;
 
   return request.post(
     url,
