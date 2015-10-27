@@ -199,9 +199,12 @@ var ra =
 
 	function sendRequest(endpoint, data) {
 	  var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-	  var url =  false ?
+	  /*
+	  var url = process.env.NODE_ENV === 'production' ?
 	    protocol + 'recapture.io/beacon/' + endpoint :
 	    protocol + 'localhost:4000/beacon/' + endpoint;
+	    */
+	    var url = protocol + 'localhost:4000/beacon/' + endpoint;
 
 	  return request.post(
 	    url,
@@ -3388,42 +3391,76 @@ var ra =
 
 /***/ },
 /* 37 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	var css = __webpack_require__(44);
+
+	// shim layer with setTimeout fallback
+	window.requestAnimFrame = (function(){
+	  return  window.requestAnimationFrame       ||
+	          window.webkitRequestAnimationFrame ||
+	          window.mozRequestAnimationFrame    ||
+	          function( callback ){
+	            window.setTimeout(callback, 1000 / 60);
+	          };
+	})();
 
 	module.exports = function(state) {
 
+	  function getVendorPrefix() {
+	    var styles = window.getComputedStyle(document.documentElement, '');
+	    var pre = (
+	      Array.prototype.slice.call(styles)
+	      .join('')
+	      .match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o'])
+	      )[1];
+	    return pre;
+	  }
+	  
 	  function initializeIframe(iframe) {
 	    var win = iframe.contentWindow;
 	    var doc = iframe.contentDocument || iframe.contentWindow.document;
 
 	    iframe.addEventListener('load', function(event, object) {
 	      
-	      event.target.style.display = null;
-	      event.target.style.opacity = null;
+	      var target = event.target;
+	      target.style.display = null;
+	      
+	      requestAnimationFrame(function(){
+	        
+	        target.style.opacity = 1;
+	        
+	      });
 	      
 	    }, false);
 	  }
 
 	  function injectIframe(src) {
+	    
 	    var iframe = document.createElement('iframe');
+	    var transitionPrefix = getVendorPrefix() + 'Transition';
+	    console.log(transitionPrefix);
 	    iframe.src = src;
 	    iframe.id = 'recapture-collector';
 	    iframe.width = '100%';
 	    iframe.height = '100%';
-	    iframe.style.width = '100%';
-	    iframe.style.height = '100%';
-	    iframe.style.position = 'fixed';
-	    iframe.style.top = '0';
-	    iframe.style.left = '0';
-	    iframe.style.border = 'none';
-	    iframe.style.display = 'none';
-	    iframe.style.opacity = '0';
-	    iframe.style.transition = 'opacity 5s';
-
+	    
+	    css(iframe, {
+	      'width'     : '100%',
+	      'height'    : '100%',
+	      'position'  : 'fixed',
+	      'top'       : '0',
+	      'left'      : '0',
+	      'border'    : 'none',
+	      'opacity'   : '0',
+	      'transition': 'opacity .25s cubic-bezier(0.550, 0.085, 0.680, 0.530)'
+	    })
+	    
 	    document.body.appendChild(iframe);
 
 	    return iframe;
 	  }
+
 
 	  state.subscribe(function() {
 	    var currentState = state.getState();
@@ -3635,6 +3672,239 @@ var ra =
 			remove: wrap('removeEventListener', 'detachEvent')
 		};
 	}));
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var prefix = __webpack_require__(45)
+	var toCamelCase = __webpack_require__(46)
+	var cache = { 'float': 'cssFloat' }
+
+	var suffixMap = {}
+	;['top','right','bottom','left',
+	    'width','height','fontSize',
+	    'paddingLeft','paddingRight',
+	    'paddingTop','paddingBottom',
+	    'marginLeft','marginRight',
+	    'marginTop','marginBottom',
+	    'padding','margin','perspective'
+	].forEach(function(prop) {
+	    suffixMap[prop] = 'px'
+	})
+
+	function style(element, property, value) {
+	    var camel = cache[property]
+	    if (typeof camel === 'undefined')
+	        camel = detect(property)
+
+	    //may be false if CSS prop is unsupported
+	    if (camel) {
+	        if (value === undefined)
+	            return element.style[camel]
+
+	        if (typeof value === 'number')
+	            value = value + (suffixMap[camel]||'')
+	        element.style[camel] = value
+	    }
+	}
+
+	function each(element, properties) {
+	    for (var k in properties) {
+	        if (properties.hasOwnProperty(k)) {
+	            style(element, k, properties[k])
+	        }
+	    }
+	}
+
+	function detect(cssProp) {
+	    var camel = toCamelCase(cssProp)
+	    var result = prefix(camel)
+	    cache[camel] = cache[cssProp] = cache[result] = result
+	    return result
+	}
+
+	function set() {
+	    if (arguments.length === 2) {
+	        each(arguments[0], arguments[1])
+	    } else
+	        style(arguments[0], arguments[1], arguments[2])
+	}
+
+	module.exports = set
+	module.exports.set = set
+
+	module.exports.get = function(element, properties) {
+	    if (Array.isArray(properties))
+	        return properties.reduce(function(obj, prop) {
+	            obj[prop] = style(element, prop||'')
+	            return obj
+	        }, {})
+	    else
+	        return style(element, properties||'')
+	}
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports) {
+
+	var elem = null
+
+	//https://gist.github.com/paulirish/523692
+	module.exports = function prefix(prop) {
+	    var prefixes = ['Moz', 'Khtml', 'Webkit', 'O', 'ms'],
+	        upper = prop.charAt(0).toUpperCase() + prop.slice(1)
+	    
+	    if (!elem)
+	        elem = document.createElement('div')
+
+	    if (prop in elem.style)
+	        return prop
+
+	    for (var len = prefixes.length; len--;) {
+	        if ((prefixes[len] + upper) in elem.style)
+	            return (prefixes[len] + upper)
+	    }
+	    return false
+	}
+
+/***/ },
+/* 46 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var toSpace = __webpack_require__(47);
+
+
+	/**
+	 * Expose `toCamelCase`.
+	 */
+
+	module.exports = toCamelCase;
+
+
+	/**
+	 * Convert a `string` to camel case.
+	 *
+	 * @param {String} string
+	 * @return {String}
+	 */
+
+
+	function toCamelCase (string) {
+	  return toSpace(string).replace(/\s(\w)/g, function (matches, letter) {
+	    return letter.toUpperCase();
+	  });
+	}
+
+/***/ },
+/* 47 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var clean = __webpack_require__(48);
+
+
+	/**
+	 * Expose `toSpaceCase`.
+	 */
+
+	module.exports = toSpaceCase;
+
+
+	/**
+	 * Convert a `string` to space case.
+	 *
+	 * @param {String} string
+	 * @return {String}
+	 */
+
+
+	function toSpaceCase (string) {
+	  return clean(string).replace(/[\W_]+(.|$)/g, function (matches, match) {
+	    return match ? ' ' + match : '';
+	  });
+	}
+
+/***/ },
+/* 48 */
+/***/ function(module, exports) {
+
+	
+	/**
+	 * Expose `toNoCase`.
+	 */
+
+	module.exports = toNoCase;
+
+
+	/**
+	 * Test whether a string is camel-case.
+	 */
+
+	var hasSpace = /\s/;
+	var hasCamel = /[a-z][A-Z]/;
+	var hasSeparator = /[\W_]/;
+
+
+	/**
+	 * Remove any starting case from a `string`, like camel or snake, but keep
+	 * spaces and punctuation that may be important otherwise.
+	 *
+	 * @param {String} string
+	 * @return {String}
+	 */
+
+	function toNoCase (string) {
+	  if (hasSpace.test(string)) return string.toLowerCase();
+
+	  if (hasSeparator.test(string)) string = unseparate(string);
+	  if (hasCamel.test(string)) string = uncamelize(string);
+	  return string.toLowerCase();
+	}
+
+
+	/**
+	 * Separator splitter.
+	 */
+
+	var separatorSplitter = /[\W_]+(.|$)/g;
+
+
+	/**
+	 * Un-separate a `string`.
+	 *
+	 * @param {String} string
+	 * @return {String}
+	 */
+
+	function unseparate (string) {
+	  return string.replace(separatorSplitter, function (m, next) {
+	    return next ? ' ' + next : '';
+	  });
+	}
+
+
+	/**
+	 * Camelcase splitter.
+	 */
+
+	var camelSplitter = /(.)([A-Z]+)/g;
+
+
+	/**
+	 * Un-camelcase a `string`.
+	 *
+	 * @param {String} string
+	 * @return {String}
+	 */
+
+	function uncamelize (string) {
+	  return string.replace(camelSplitter, function (m, previous, uppers) {
+	    return previous + ' ' + uppers.toLowerCase().split('').join(' ');
+	  });
+	}
 
 /***/ }
 /******/ ]);
