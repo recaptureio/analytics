@@ -1599,11 +1599,11 @@ var ra =
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = this,
+		var global = window || this,
 			pinkyswear = __webpack_require__(20),
 			jparam = __webpack_require__(23),
 			// Default response type for XDR in auto mode
@@ -1684,7 +1684,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = Date.now();
+					timeout_start = new Date().getTime();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1763,7 +1763,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(Date.now()-timeout_start >= options.timeout) {
+				if(new Date().getTime()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -2456,8 +2456,14 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
+	    var isSubscribed = true;
 
 	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+
+	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2688,13 +2694,16 @@ var ra =
 	      throw sanityError;
 	    }
 
+	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var newState = reducer(state[key], action);
-	      if (typeof newState === 'undefined') {
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      return newState;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	      return nextStateForKey;
 	    });
 
 	    if (true) {
@@ -2704,7 +2713,7 @@ var ra =
 	      }
 	    }
 
-	    return finalState;
+	    return hasChanged ? finalState : state;
 	  };
 	}
 
@@ -3387,16 +3396,18 @@ var ra =
 	    var win = iframe.contentWindow;
 	    var doc = iframe.contentDocument || iframe.contentWindow.document;
 
-	    if (doc.readyState === 'complete') {
-	      win.addEventListener('load', function() {
-	        console.log('loaded');
-	      }, false);
-	    }
+	    iframe.addEventListener('load', function(event, object) {
+	      
+	      event.target.style.display = null;
+	      event.target.style.opacity = null;
+	      
+	    }, false);
 	  }
 
 	  function injectIframe(src) {
 	    var iframe = document.createElement('iframe');
 	    iframe.src = src;
+	    iframe.id = 'recapture-collector';
 	    iframe.width = '100%';
 	    iframe.height = '100%';
 	    iframe.style.width = '100%';
@@ -3405,6 +3416,9 @@ var ra =
 	    iframe.style.top = '0';
 	    iframe.style.left = '0';
 	    iframe.style.border = 'none';
+	    iframe.style.display = 'none';
+	    iframe.style.opacity = '0';
+	    iframe.style.transition = 'opacity 5s';
 
 	    document.body.appendChild(iframe);
 
