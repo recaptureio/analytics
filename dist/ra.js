@@ -50,10 +50,10 @@ var ra =
 
 	var customer = __webpack_require__(35)(state);
 	var collector = __webpack_require__(37)(state);
-	var init = __webpack_require__(38)(state, customer);
-	var page = __webpack_require__(39)(state);
-	var product = __webpack_require__(40)(state);
-	var email = __webpack_require__(41)(state, customer);
+	var init = __webpack_require__(43)(state, customer);
+	var page = __webpack_require__(44)(state);
+	var product = __webpack_require__(45)(state);
+	var email = __webpack_require__(46)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -106,7 +106,10 @@ var ra =
 	var logger = createLogger({
 	  collapsed: true,
 	  duration: true,
-	  timestamp: false
+	  timestamp: false,
+	  predicate: function(getState, action) {
+	    return ("development") !== 'production';
+	  }
 	});
 
 	/**
@@ -1602,11 +1605,11 @@ var ra =
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = window || this,
+		var global = this,
 			pinkyswear = __webpack_require__(20),
 			jparam = __webpack_require__(23),
 			// Default response type for XDR in auto mode
@@ -1687,7 +1690,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = new Date().getTime();
+					timeout_start = Date.now();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1766,7 +1769,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(new Date().getTime()-timeout_start >= options.timeout) {
+				if(Date.now()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -2459,14 +2462,8 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
-	    var isSubscribed = true;
 
 	    return function unsubscribe() {
-	      if (!isSubscribed) {
-	        return;
-	      }
-
-	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2697,16 +2694,13 @@ var ra =
 	      throw sanityError;
 	    }
 
-	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var previousStateForKey = state[key];
-	      var nextStateForKey = reducer(previousStateForKey, action);
-	      if (typeof nextStateForKey === 'undefined') {
+	      var newState = reducer(state[key], action);
+	      if (typeof newState === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-	      return nextStateForKey;
+	      return newState;
 	    });
 
 	    if (true) {
@@ -2716,7 +2710,7 @@ var ra =
 	      }
 	    }
 
-	    return hasChanged ? finalState : state;
+	    return finalState;
 	  };
 	}
 
@@ -3393,7 +3387,7 @@ var ra =
 /* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var css = __webpack_require__(44);
+	var css = __webpack_require__(38);
 
 	// shim layer with setTimeout fallback
 	window.requestAnimFrame = (function(){
@@ -3405,46 +3399,45 @@ var ra =
 	          };
 	})();
 
+	function getIframeWindow(iframeElement){
+	  return iframeElement.contentWindow || iframeElement.contentDocument.parentWindow;
+	}
+
 	module.exports = function(state) {
 
-	  function getVendorPrefix() {
-	    var styles = window.getComputedStyle(document.documentElement, '');
-	    var pre = (
-	      Array.prototype.slice.call(styles)
-	      .join('')
-	      .match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o'])
-	      )[1];
-	    return pre;
+	  function setupCloseListener() {
+
 	  }
-	  
+
 	  function initializeIframe(iframe) {
-	    var win = iframe.contentWindow;
+	    var win = getIframeWindow(iframe);
 	    var doc = iframe.contentDocument || iframe.contentWindow.document;
 
-	    iframe.addEventListener('load', function(event, object) {
-	      
-	      var target = event.target;
-	      target.style.display = null;
-	      
-	      requestAnimationFrame(function(){
-	        
-	        target.style.opacity = 1;
-	        
+	    iframe.addEventListener('load', function() {
+	      css(iframe, 'display', 'inherit');
+	      requestAnimFrame(function() {
+	        css(iframe, 'opacity', 1);
 	      });
-	      
+
+	      var close = doc.getElementById('recapture-close-collector');
+	      console.log(close);
+	    }, false);
+
+	    win.addEventListener('load', function() {
+	      console.log('wat');
+	      var close = doc.getElementById('recapture-close-collector');
+	      console.log(close);
 	    }, false);
 	  }
 
 	  function injectIframe(src) {
-	    
 	    var iframe = document.createElement('iframe');
-	    var transitionPrefix = getVendorPrefix() + 'Transition';
-	    console.log(transitionPrefix);
+
 	    iframe.src = src;
 	    iframe.id = 'recapture-collector';
 	    iframe.width = '100%';
 	    iframe.height = '100%';
-	    
+
 	    css(iframe, {
 	      'width'     : '100%',
 	      'height'    : '100%',
@@ -3455,7 +3448,7 @@ var ra =
 	      'opacity'   : '0',
 	      'transition': 'opacity .25s cubic-bezier(0.550, 0.085, 0.680, 0.530)'
 	    })
-	    
+
 	    document.body.appendChild(iframe);
 
 	    return iframe;
@@ -3477,208 +3470,8 @@ var ra =
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var storage = __webpack_require__(3);
-	var actions = __webpack_require__(2);
-
-	var setApiKey = actions.setApiKey;
-
-	module.exports = function(state, customer) {
-	  var currentState = state.getState();
-
-	  return function(apiKey) {
-	    state.dispatch(setApiKey(apiKey));
-
-	    storage.has('ra_customer_id') ?
-	      customer.load() :
-	      customer.create();
-	  }
-	}
-
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var sendPage = __webpack_require__(2).sendPage;
-
-	/**
-	 * Get page data for the current page
-	 * @method getPageData
-	 * @return {Object} Parsed url data
-	 */
-	function getPageData() {
-	  var parser = document.createElement('a');
-	  parser.href = window.location.href;
-
-	  return {
-	    url: parser.href,
-	    hostname: parser.hostname || window.location.hostname, // ie fix
-	    path: parser.pathname,
-	    hash: parser.hash,
-	    query: parser.search,
-	    referrer: document.referrer,
-	    title: document.title
-	  };
-	}
-
-	module.exports = function(state) {
-	  var currentState = state.getState();
-	  var data = getPageData();
-
-	  return function() {
-	    data.customer = currentState.customer_id;
-	    data.api_key = currentState.api_key;
-
-	    state.dispatch(sendPage(data));
-	  };
-	};
-
-
-/***/ },
-/* 40 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var sendProduct = __webpack_require__(2).sendProduct;
-
-	module.exports = function(state) {
-	  var currentState = state.getState();
-
-	  return function(productData) {
-	    productData.customer = currentState.customer_id;
-	    productData.api_key = currentState.api_key;
-
-	    state.dispatch(sendProduct(productData));
-	  }
-	}
-
-
-/***/ },
-/* 41 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var isEmail = __webpack_require__(42);
-	var eventListener = __webpack_require__(43);
-	var actions = __webpack_require__(2);
-
-	var setCartId = actions.setCartId;
-
-	module.exports = function(state, customer) {
-
-	  var timers = [];
-	  var inputs = document.getElementsByTagName('input');
-
-	  /**
-	   * Attach keyup listener to all inputs on page
-	   * @method attachListeners
-	   */
-	  function attachListeners() {
-	    if (inputs && inputs.length) {
-	      for (var i = 0, len = inputs.length; i < len; i++) {
-
-	        // check to see if input already has a value prefilled
-	        if (inputs[i].value && checkIsEmail(inputs[i].value)) {
-	          setEmail(inputs[i].value);
-	        }
-
-	        eventListener.add(inputs[i], 'keyup', waitForTyping);
-	        timers.push(0);
-	      }
-	    }
-	  }
-
-	  /**
-	   * Event callback for keyp event to put email check in queue
-	   * @method waitForTyping
-	   * @param  {Object} e Event object
-	   */
-	  function waitForTyping(e) {
-	    var value = e.target.value;
-
-	    for (var i = 0, len = inputs.length; i < len;   i++) {
-	      if (inputs[i] === e.target) {
-	        clearTimeout(timers[i]);
-
-	        timers[i] = setTimeout(function() {
-	          if (checkIsEmail(value)) {
-	            setEmail(value);
-	          }
-	        }, 2000);
-	      }
-	    }
-	  }
-
-	  /**
-	   * Conditional check to see if we are recieving a valid email address
-	   * @method checkIsEmail
-	   * @param  {String} value An email address value
-	   * @return {Boolean} Whether our value is an email address or not
-	   */
-	  function checkIsEmail(value) {
-	    return value && isEmail(value);
-	  }
-
-	  /**
-	   * Set customer email address
-	   * @method setEmail
-	   * @param  {String} email The email address we want to set
-	   */
-	  function setEmail(email) {
-	    customer.email(email);
-	  }
-	  
-	  return function(cartId) {
-	    attachListeners();
-	    state.dispatch(setCartId(cartId));
-	  }
-	};
-
-
-/***/ },
-/* 42 */
-/***/ function(module, exports) {
-
-	module.exports = function(emailString) {
-	  var check, regExp;
-	  regExp = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))){2,6}$/i;
-	  return check = regExp.test(emailString);
-	};
-
-
-/***/ },
-/* 43 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else if (typeof exports === 'object') {
-	        module.exports = factory();
-	    } else {
-	        root.eventListener = factory();
-	  }
-	}(this, function () {
-		function wrap(standard, fallback) {
-			return function (el, evtName, listener, useCapture) {
-				if (el[standard]) {
-					el[standard](evtName, listener, useCapture);
-				} else if (el[fallback]) {
-					el[fallback]('on' + evtName, listener);
-				}
-			}
-		}
-
-	    return {
-			add: wrap('addEventListener', 'attachEvent'),
-			remove: wrap('removeEventListener', 'detachEvent')
-		};
-	}));
-
-/***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var prefix = __webpack_require__(45)
-	var toCamelCase = __webpack_require__(46)
+	var prefix = __webpack_require__(39)
+	var toCamelCase = __webpack_require__(40)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -3746,7 +3539,7 @@ var ra =
 
 
 /***/ },
-/* 45 */
+/* 39 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -3770,11 +3563,11 @@ var ra =
 	}
 
 /***/ },
-/* 46 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(47);
+	var toSpace = __webpack_require__(41);
 
 
 	/**
@@ -3799,11 +3592,11 @@ var ra =
 	}
 
 /***/ },
-/* 47 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(48);
+	var clean = __webpack_require__(42);
 
 
 	/**
@@ -3828,7 +3621,7 @@ var ra =
 	}
 
 /***/ },
-/* 48 */
+/* 42 */
 /***/ function(module, exports) {
 
 	
@@ -3905,6 +3698,206 @@ var ra =
 	    return previous + ' ' + uppers.toLowerCase().split('').join(' ');
 	  });
 	}
+
+/***/ },
+/* 43 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var storage = __webpack_require__(3);
+	var actions = __webpack_require__(2);
+
+	var setApiKey = actions.setApiKey;
+
+	module.exports = function(state, customer) {
+	  var currentState = state.getState();
+
+	  return function(apiKey) {
+	    state.dispatch(setApiKey(apiKey));
+
+	    storage.has('ra_customer_id') ?
+	      customer.load() :
+	      customer.create();
+	  }
+	}
+
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var sendPage = __webpack_require__(2).sendPage;
+
+	/**
+	 * Get page data for the current page
+	 * @method getPageData
+	 * @return {Object} Parsed url data
+	 */
+	function getPageData() {
+	  var parser = document.createElement('a');
+	  parser.href = window.location.href;
+
+	  return {
+	    url: parser.href,
+	    hostname: parser.hostname || window.location.hostname, // ie fix
+	    path: parser.pathname,
+	    hash: parser.hash,
+	    query: parser.search,
+	    referrer: document.referrer,
+	    title: document.title
+	  };
+	}
+
+	module.exports = function(state) {
+	  var currentState = state.getState();
+	  var data = getPageData();
+
+	  return function() {
+	    data.customer = currentState.customer_id;
+	    data.api_key = currentState.api_key;
+
+	    state.dispatch(sendPage(data));
+	  };
+	};
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var sendProduct = __webpack_require__(2).sendProduct;
+
+	module.exports = function(state) {
+	  var currentState = state.getState();
+
+	  return function(productData) {
+	    productData.customer = currentState.customer_id;
+	    productData.api_key = currentState.api_key;
+
+	    state.dispatch(sendProduct(productData));
+	  }
+	}
+
+
+/***/ },
+/* 46 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isEmail = __webpack_require__(47);
+	var eventListener = __webpack_require__(48);
+	var actions = __webpack_require__(2);
+
+	var setCartId = actions.setCartId;
+
+	module.exports = function(state, customer) {
+
+	  var timers = [];
+	  var inputs = document.getElementsByTagName('input');
+
+	  /**
+	   * Attach keyup listener to all inputs on page
+	   * @method attachListeners
+	   */
+	  function attachListeners() {
+	    if (inputs && inputs.length) {
+	      for (var i = 0, len = inputs.length; i < len; i++) {
+
+	        // check to see if input already has a value prefilled
+	        if (inputs[i].value && checkIsEmail(inputs[i].value)) {
+	          setEmail(inputs[i].value);
+	        }
+
+	        eventListener.add(inputs[i], 'keyup', waitForTyping);
+	        timers.push(0);
+	      }
+	    }
+	  }
+
+	  /**
+	   * Event callback for keyp event to put email check in queue
+	   * @method waitForTyping
+	   * @param  {Object} e Event object
+	   */
+	  function waitForTyping(e) {
+	    var value = e.target.value;
+
+	    for (var i = 0, len = inputs.length; i < len;   i++) {
+	      if (inputs[i] === e.target) {
+	        clearTimeout(timers[i]);
+
+	        timers[i] = setTimeout(function() {
+	          if (checkIsEmail(value)) {
+	            setEmail(value);
+	          }
+	        }, 2000);
+	      }
+	    }
+	  }
+
+	  /**
+	   * Conditional check to see if we are recieving a valid email address
+	   * @method checkIsEmail
+	   * @param  {String} value An email address value
+	   * @return {Boolean} Whether our value is an email address or not
+	   */
+	  function checkIsEmail(value) {
+	    return value && isEmail(value);
+	  }
+
+	  /**
+	   * Set customer email address
+	   * @method setEmail
+	   * @param  {String} email The email address we want to set
+	   */
+	  function setEmail(email) {
+	    customer.email(email);
+	  }
+	  
+	  return function(cartId) {
+	    attachListeners();
+	    state.dispatch(setCartId(cartId));
+	  }
+	};
+
+
+/***/ },
+/* 47 */
+/***/ function(module, exports) {
+
+	module.exports = function(emailString) {
+	  var check, regExp;
+	  regExp = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))){2,6}$/i;
+	  return check = regExp.test(emailString);
+	};
+
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if (typeof exports === 'object') {
+	        module.exports = factory();
+	    } else {
+	        root.eventListener = factory();
+	  }
+	}(this, function () {
+		function wrap(standard, fallback) {
+			return function (el, evtName, listener, useCapture) {
+				if (el[standard]) {
+					el[standard](evtName, listener, useCapture);
+				} else if (el[fallback]) {
+					el[fallback]('on' + evtName, listener);
+				}
+			}
+		}
+
+	    return {
+			add: wrap('addEventListener', 'attachEvent'),
+			remove: wrap('removeEventListener', 'detachEvent')
+		};
+	}));
 
 /***/ }
 /******/ ]);

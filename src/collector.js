@@ -10,46 +10,45 @@ window.requestAnimFrame = (function(){
           };
 })();
 
+function getIframeWindow(iframeElement){
+  return iframeElement.contentWindow || iframeElement.contentDocument.parentWindow;
+}
+
 module.exports = function(state) {
 
-  function getVendorPrefix() {
-    var styles = window.getComputedStyle(document.documentElement, '');
-    var pre = (
-      Array.prototype.slice.call(styles)
-      .join('')
-      .match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o'])
-      )[1];
-    return pre;
+  function setupCloseListener() {
+
   }
-  
+
   function initializeIframe(iframe) {
-    var win = iframe.contentWindow;
+    var win = getIframeWindow(iframe);
     var doc = iframe.contentDocument || iframe.contentWindow.document;
 
-    iframe.addEventListener('load', function(event, object) {
-      
-      var target = event.target;
-      target.style.display = null;
-      
-      requestAnimationFrame(function(){
-        
-        target.style.opacity = 1;
-        
+    iframe.addEventListener('load', function() {
+      css(iframe, 'display', 'inherit');
+      requestAnimFrame(function() {
+        css(iframe, 'opacity', 1);
       });
-      
+
+      var close = doc.getElementById('recapture-close-collector');
+      console.log(close);
+    }, false);
+
+    win.addEventListener('load', function() {
+      console.log('wat');
+      var close = doc.getElementById('recapture-close-collector');
+      console.log(close);
     }, false);
   }
 
   function injectIframe(src) {
-    
     var iframe = document.createElement('iframe');
-    var transitionPrefix = getVendorPrefix() + 'Transition';
-    console.log(transitionPrefix);
+
     iframe.src = src;
     iframe.id = 'recapture-collector';
     iframe.width = '100%';
     iframe.height = '100%';
-    
+
     css(iframe, {
       'width'     : '100%',
       'height'    : '100%',
@@ -60,7 +59,7 @@ module.exports = function(state) {
       'opacity'   : '0',
       'transition': 'opacity .25s cubic-bezier(0.550, 0.085, 0.680, 0.530)'
     })
-    
+
     document.body.appendChild(iframe);
 
     return iframe;

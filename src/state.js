@@ -8,7 +8,10 @@ var applyMiddleware = redux.applyMiddleware;
 var logger = createLogger({
   collapsed: true,
   duration: true,
-  timestamp: false
+  timestamp: false,
+  predicate: function(getState, action) {
+    return process.env.NODE_ENV !== 'production';
+  }
 });
 
 /**
