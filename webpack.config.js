@@ -14,7 +14,9 @@ var plugins = [
 ];
 
 if (isProduction) {
+  plugins.push(new webpack.NoErrorsPlugin());
   plugins.push(new webpack.optimize.DedupePlugin());
+  plugins.push(new webpack.optimize.OccurenceOrderPlugin());
   plugins.push(new webpack.optimize.UglifyJsPlugin(uglifyConfig));
 }
 
