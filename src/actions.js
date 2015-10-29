@@ -1,17 +1,22 @@
 var storage = require('storage');
 var createAction = require('redux-actions').createAction;
-var request = require('then-request');
+var jQuery = require('jquery');
 
 function sendRequest(endpoint, data) {
 
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
     'http://localhost:4000/beacon/';
-
-  return request('POST', baseURL + endpoint, {
-    json: data,
-    headers: { 'Api-Key': data.api_key }
+    
+    console.log('jquery');
+    console.log(baseURL + endpoint);
+    
+  return jQuery.ajax({
+    dataType: 'jsonp',
+    url     : baseURL + endpoint,
+    data    : data
   });
+    
 }
 
 /**
@@ -57,18 +62,12 @@ exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
 exports.sendCustomerEmail = function(data) {
   return function(dispatch) {
     sendRequest('cart/email', data)
-      .then(function(response) {
+      .done(function(response) {
         dispatch({
           type: SEND_CUSTOMER_EMAIL,
-          payload: response.body
+          payload: response
         });
       })
-      .catch(function(err) {
-        dispatch({
-          type: SEND_CUSTOMER_EMAIL,
-          payload: err
-        });
-      });
   };
 }
 
@@ -80,18 +79,12 @@ exports.SEND_PRODUCT = SEND_PRODUCT;
 exports.sendProduct = function(data) {
   return function(dispatch) {
     sendRequest('product', data)
-      .then(function(response) {
+      .done(function(response) {
         dispatch({
           type: SEND_PRODUCT,
-          payload: response.body
+          payload: response
         });
       })
-      .catch(function(err) {
-        dispatch({
-          type: SEND_PRODUCT,
-          payload: err
-        });
-      });
   };
 };
 
@@ -103,17 +96,11 @@ exports.SEND_PAGE = SEND_PAGE;
 exports.sendPage = function(data) {
   return function(dispatch) {
     sendRequest('page', data)
-      .then(function(response) {
+      .done(function(response) {
         dispatch({
           type: SEND_PAGE,
-          payload: response.body
+          payload: response
         });
       })
-      .catch(function(err) {
-        dispatch({
-          type: SEND_PAGE,
-          payload: err
-        });
-      });
   };
 };

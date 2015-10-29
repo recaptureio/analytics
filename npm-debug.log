@@ -1,0 +1,78 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   '--save',
+1 verbose cli   'superagent-legacyIESupport' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.36
+4 verbose node symlink C:\Program Files (x86)\nodejs\\node.exe
+5 warn package.json recapture-analytics@1.0.1 No repository field.
+6 warn package.json url@0.11.0 url is also the name of a node core module.
+7 verbose readDependencies using package.json deps
+8 verbose cache add [ 'superagent-legacyIESupport', null ]
+9 verbose cache add name=undefined spec="superagent-legacyIESupport" args=["superagent-legacyIESupport",null]
+10 verbose parsed url { protocol: null,
+10 verbose parsed url   slashes: null,
+10 verbose parsed url   auth: null,
+10 verbose parsed url   host: null,
+10 verbose parsed url   port: null,
+10 verbose parsed url   hostname: null,
+10 verbose parsed url   hash: null,
+10 verbose parsed url   search: null,
+10 verbose parsed url   query: null,
+10 verbose parsed url   pathname: 'superagent-legacyIESupport',
+10 verbose parsed url   path: 'superagent-legacyIESupport',
+10 verbose parsed url   href: 'superagent-legacyIESupport' }
+11 silly lockFile 46d63e4c-superagent-legacyIESupport superagent-legacyIESupport
+12 verbose lock superagent-legacyIESupport C:\Users\David\AppData\Roaming\npm-cache\46d63e4c-superagent-legacyIESupport.lock
+13 silly lockFile 46d63e4c-superagent-legacyIESupport superagent-legacyIESupport
+14 silly lockFile 46d63e4c-superagent-legacyIESupport superagent-legacyIESupport
+15 verbose addNamed [ 'superagent-legacyIESupport', '' ]
+16 verbose addNamed [ null, '*' ]
+17 silly lockFile 6d7be306-superagent-legacyIESupport superagent-legacyIESupport@
+18 verbose lock superagent-legacyIESupport@ C:\Users\David\AppData\Roaming\npm-cache\6d7be306-superagent-legacyIESupport.lock
+19 silly addNameRange { name: 'superagent-legacyIESupport',
+19 silly addNameRange   range: '*',
+19 silly addNameRange   hasData: false }
+20 verbose request where is /superagent-legacyIESupport
+21 verbose request registry https://registry.npmjs.org/
+22 verbose request id 9ac1d4009c32589b
+23 verbose url raw /superagent-legacyIESupport
+24 verbose url resolving [ 'https://registry.npmjs.org/',
+24 verbose url resolving   './superagent-legacyIESupport' ]
+25 verbose url resolved https://registry.npmjs.org/superagent-legacyIESupport
+26 verbose request where is https://registry.npmjs.org/superagent-legacyIESupport
+27 info trying registry request attempt 1 at 15:35:44
+28 http GET https://registry.npmjs.org/superagent-legacyIESupport
+29 http 404 https://registry.npmjs.org/superagent-legacyIESupport
+30 silly registry.get cb [ 404,
+30 silly registry.get   { 'content-type': 'application/json',
+30 silly registry.get     'cache-control': 'max-age=0',
+30 silly registry.get     'content-length': '2',
+30 silly registry.get     'accept-ranges': 'bytes',
+30 silly registry.get     date: 'Thu, 29 Oct 2015 19:35:26 GMT',
+30 silly registry.get     via: '1.1 varnish',
+30 silly registry.get     age: '0',
+30 silly registry.get     connection: 'keep-alive',
+30 silly registry.get     'x-served-by': 'cache-ord1730-ORD',
+30 silly registry.get     'x-cache': 'MISS',
+30 silly registry.get     'x-cache-hits': '0',
+30 silly registry.get     'x-timer': 'S1446147326.161782,VS0,VE65' } ]
+31 silly lockFile 6d7be306-superagent-legacyIESupport superagent-legacyIESupport@
+32 silly lockFile 6d7be306-superagent-legacyIESupport superagent-legacyIESupport@
+33 error 404 Not Found
+33 error 404
+33 error 404 'superagent-legacyIESupport' is not in the npm registry.
+33 error 404 You should bug the author to publish it
+33 error 404 It was specified as a dependency of 'recapture-analytics'
+33 error 404
+33 error 404 Note that you can also install from a
+33 error 404 tarball, folder, or http url, or git url.
+34 error System Windows_NT 6.2.9200
+35 error command "C:\\Program Files (x86)\\nodejs\\\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "--save" "superagent-legacyIESupport"
+36 error cwd C:\wamp\www\recapture-analytics
+37 error node -v v0.10.36
+38 error npm -v 1.4.28
+39 error code E404
+40 verbose exit [ 1, true ]
