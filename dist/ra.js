@@ -3439,7 +3439,7 @@ var ra =
 	   */
 	  function setupMessageListener() {
 	    window.addEventListener('message', function(e) {
-	      if (e.isTrusted && (e.data === 'close' || e.data === 'submit')) {
+	      if (e.isTrusted && (e.data === 'recapture::close' || e.data === 'recapture::submit')) {
 	        removeCollector();
 	      }
 	    }, false);
@@ -3484,7 +3484,7 @@ var ra =
 	      left: 0,
 	      border: 'none',
 	      opacity: '0',
-	      transition: 'opacity .25s cubic-bezier(0.550, 0.085, 0.680, 0.530)',
+	      transition: 'all 400ms cubic-bezier(.25,.8,.25,1)',
 	      zIndex: 999
 	    });
 
