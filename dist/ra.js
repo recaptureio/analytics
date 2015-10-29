@@ -203,7 +203,8 @@ var ra =
 
 	  var baseURL =  false ?
 	    'https://www.recapture.io/beacon/' :
-	    'http://localhost:4000/beacon/';
+	    'http://2aaac80d.ngrok.io/beacon/';
+	    // 'http://localhost:4000/beacon/';
 
 	  request('POST', baseURL + endpoint, {
 	    json: data,
