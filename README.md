@@ -8,9 +8,11 @@ Local storage and cookies keys:
 
 `ra_customer_id` and `ra_customer_email` (if set)
 
+All method calls will point to `http://recapture.io/beacon` if using minified js, otherwise it will point to `http://localhost:4000/beacon`
+
 ## Methods
 
-*`ra('init', [apiKey|string|required, baseUrl|string])`*
+*`ra('init', [apiKey|string|required)`*
 
 Required to be called before any other methods.
 
@@ -18,7 +20,7 @@ e.g.
 
 ```javascript
 ra('init', ['abc123']);
-ra('init', ['abc123', 'http://localhost:4000/beacon/']);
+ra('init', ['abc123']);
 ```
 
 ---
