@@ -6,24 +6,12 @@ function sendRequest(endpoint, data) {
 
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
-    'http://2aaac80d.ngrok.io/beacon/';
-    // 'http://localhost:4000/beacon/';
+    'http://localhost:4000/beacon/';
 
   return request('POST', baseURL + endpoint, {
     json: data,
     headers: { 'Api-Key': data.api_key }
   });
-
-  // qwest.js syntax
-  // return request.post(
-  //   baseURL + endpoint,
-  //   data,
-  //   {
-  //     dataType: 'json',
-  //     responseType: 'json',
-  //     headers: { 'Api-Key': data.api_key }
-  //   }
-  // );
 }
 
 /**
@@ -69,13 +57,13 @@ exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
 exports.sendCustomerEmail = function(data) {
   return function(dispatch) {
     sendRequest('cart/email', data)
-      .then(function(xhr, response) {
+      .then(function(response) {
         dispatch({
           type: SEND_CUSTOMER_EMAIL,
-          payload: response
+          payload: response.body
         });
       })
-      .catch(function(xhr, response, err) {
+      .catch(function(err) {
         dispatch({
           type: SEND_CUSTOMER_EMAIL,
           payload: err
@@ -92,13 +80,13 @@ exports.SEND_PRODUCT = SEND_PRODUCT;
 exports.sendProduct = function(data) {
   return function(dispatch) {
     sendRequest('product', data)
-      .then(function(xhr, response) {
+      .then(function(response) {
         dispatch({
           type: SEND_PRODUCT,
-          payload: response
+          payload: response.body
         });
       })
-      .catch(function(xhr, response, err) {
+      .catch(function(err) {
         dispatch({
           type: SEND_PRODUCT,
           payload: err
@@ -115,13 +103,13 @@ exports.SEND_PAGE = SEND_PAGE;
 exports.sendPage = function(data) {
   return function(dispatch) {
     sendRequest('page', data)
-      .then(function(xhr, response) {
+      .then(function(response) {
         dispatch({
           type: SEND_PAGE,
-          payload: response
+          payload: response.body
         });
       })
-      .catch(function(xhr, response, err) {
+      .catch(function(err) {
         dispatch({
           type: SEND_PAGE,
           payload: err
