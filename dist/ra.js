@@ -206,7 +206,7 @@ var ra =
 	    'http://2aaac80d.ngrok.io/beacon/';
 	    // 'http://localhost:4000/beacon/';
 
-	  request('POST', baseURL + endpoint, {
+	  return request('POST', baseURL + endpoint, {
 	    json: data,
 	    headers: { 'Api-Key': data.api_key }
 	  });
