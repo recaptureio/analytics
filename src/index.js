@@ -1,5 +1,7 @@
 var state = require('state');
 
+require('polyfill');
+
 var customer = require('customer')(state);
 var collector = require('collector')(state);
 var init = require('methods/init')(state, customer);

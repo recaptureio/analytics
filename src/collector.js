@@ -50,7 +50,7 @@ module.exports = function(state) {
    */
   function setupMessageListener() {
     window.addEventListener('message', function(e) {
-      if (e.isTrusted && (e.data === 'close' || e.data === 'submit')) {
+      if (e.isTrusted && (e.data === 'recapture::close' || e.data === 'submit')) {
         removeCollector();
       }
     }, false);
@@ -95,7 +95,7 @@ module.exports = function(state) {
       left: 0,
       border: 'none',
       opacity: '0',
-      transition: 'opacity .25s cubic-bezier(0.550, 0.085, 0.680, 0.530)',
+      transition: 'opacity .15s cubic-bezier(0.550, 0.085, 0.680, 0.530)',
       zIndex: 999
     });
 

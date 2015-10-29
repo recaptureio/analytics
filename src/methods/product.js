@@ -6,7 +6,7 @@ module.exports = function(state) {
   return function(productData) {
     productData.customer = currentState.customer_id;
     productData.api_key = currentState.api_key;
-
-    state.dispatch(sendProduct(productData));
+    
+    state.dispatch(sendProduct(productData, currentState.base_url));
   }
 }

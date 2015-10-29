@@ -2,15 +2,7 @@ var storage = require('storage');
 var createAction = require('redux-actions').createAction;
 var request = require('qwest');
 
-function sendRequest(endpoint, data) {
-  var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-  /*
-  var url = process.env.NODE_ENV === 'production' ?
-    protocol + 'recapture.io/beacon/' + endpoint :
-    protocol + 'localhost:4000/beacon/' + endpoint;
-    */
-    var url = protocol + 'localhost:4000/beacon/' + endpoint;
-
+function sendRequest(url, data) {
   return request.post(
     url,
     data,
@@ -28,6 +20,13 @@ function sendRequest(endpoint, data) {
 var SET_API_KEY = 'SET_API_KEY';
 exports.SET_API_KEY = SET_API_KEY;
 exports.setApiKey = createAction(SET_API_KEY);
+
+/**
+ * Sets the base URL for requests
+ */
+var SET_BASE_URL = 'SET_BASE_URL';
+exports.SET_BASE_URL = SET_BASE_URL;
+exports.setBaseUrl = createAction(SET_BASE_URL);
 
 /**
  * Sets cart id of the customer
@@ -62,16 +61,16 @@ exports.setCustomerEmail = createAction(SET_CUSTOMER_EMAIL, function(email) {
  */
 var SEND_CUSTOMER_EMAIL = 'SEND_CUSTOMER_EMAIL';
 exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
-exports.sendCustomerEmail = function(data) {
+exports.sendCustomerEmail = function(data, baseUrl) {
   return function(dispatch) {
-    sendRequest('cart/email', data)
+    sendRequest(baseUrl + 'cart/email', data)
       .then(function(xhr, response) {
         dispatch({
           type: SEND_CUSTOMER_EMAIL,
           payload: response
         });
       })
-      .catch(function(xhr, response, err) {
+      ['catch'](function(xhr, response, err) {
         dispatch({
           type: SEND_CUSTOMER_EMAIL,
           payload: err
@@ -85,16 +84,16 @@ exports.sendCustomerEmail = function(data) {
  */
 var SEND_PRODUCT = 'SEND_PRODUCT';
 exports.SEND_PRODUCT = SEND_PRODUCT;
-exports.sendProduct = function(data) {
+exports.sendProduct = function(data, baseUrl) {
   return function(dispatch) {
-    sendRequest('product', data)
+    sendRequest(baseUrl + 'product', data)
       .then(function(xhr, response) {
         dispatch({
           type: SEND_PRODUCT,
           payload: response
         });
       })
-      .catch(function(xhr, response, err) {
+      ['catch'](function(xhr, response, err) {
         dispatch({
           type: SEND_PRODUCT,
           payload: err
@@ -108,16 +107,16 @@ exports.sendProduct = function(data) {
  */
 var SEND_PAGE = 'SEND_PAGE';
 exports.SEND_PAGE = SEND_PAGE;
-exports.sendPage = function(data) {
+exports.sendPage = function(data, baseUrl) {
   return function(dispatch) {
-    sendRequest('page', data)
+    sendRequest(baseUrl + 'page', data)
       .then(function(xhr, response) {
         dispatch({
           type: SEND_PAGE,
           payload: response
         });
       })
-      .catch(function(xhr, response, err) {
+      ['catch'](function(xhr, response, err) {
         dispatch({
           type: SEND_PAGE,
           payload: err

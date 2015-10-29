@@ -33,7 +33,7 @@ module.exports = function(state) {
     };
 
     state.dispatch(setCustomerEmail(email));
-    state.dispatch(sendCustomerEmail(data));
+    state.dispatch(sendCustomerEmail(data, currentState.base_url));
   }
 
   /**

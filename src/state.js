@@ -19,6 +19,7 @@ var logger = createLogger({
  * @type {String}
  */
 var SET_API_KEY = actions.SET_API_KEY;
+var SET_BASE_URL = actions.SET_BASE_URL;
 var SET_CART_ID = actions.SET_CART_ID;
 var SET_CUSTOMER_ID = actions.SET_CUSTOMER_ID;
 var SET_CUSTOMER_EMAIL = actions.SET_CUSTOMER_EMAIL;
@@ -31,6 +32,7 @@ var SEND_PRODUCT = actions.SEND_PRODUCT;
  */
 var defaultState = {
   api_key: null,
+  base_url: 'https://www.recapture.io/beacon/',
   cart_id: null,
   customer_id: null,
   customer_email: null,
@@ -48,6 +50,10 @@ function reducer(state, action) {
   switch (action.type) {
     case SET_API_KEY:
       state.api_key = action.payload;
+      return state;
+
+    case SET_BASE_URL:
+      state.base_url = action.payload;
       return state;
 
     case SET_CART_ID:
