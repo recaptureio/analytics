@@ -10,7 +10,7 @@ Local storage and cookies keys:
 
 ## Methods
 
-*`ra('init', [apiKey|string|required])`*
+*`ra('init', [apiKey|string|required, baseUrl|string])`*
 
 Required to be called before any other methods.
 
@@ -18,6 +18,7 @@ e.g.
 
 ```javascript
 ra('init', ['abc123']);
+ra('init', ['abc123', 'http://localhost:4000/beacon/']);
 ```
 
 ---

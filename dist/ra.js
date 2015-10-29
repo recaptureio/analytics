@@ -47,13 +47,12 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var state = __webpack_require__(1);
-
-	var customer = __webpack_require__(35)(state);
-	var collector = __webpack_require__(37)(state);
-	var init = __webpack_require__(43)(state, customer);
-	var page = __webpack_require__(44)(state);
-	var product = __webpack_require__(45)(state);
-	var email = __webpack_require__(46)(state, customer);
+	var customer = __webpack_require__(37)(state);
+	var collector = __webpack_require__(39)(state);
+	var init = __webpack_require__(45)(state, customer);
+	var page = __webpack_require__(46)(state);
+	var product = __webpack_require__(47)(state);
+	var email = __webpack_require__(48)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -201,16 +200,13 @@ var ra =
 	var request = __webpack_require__(19);
 
 	function sendRequest(endpoint, data) {
-	  var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-	  /*
-	  var url = process.env.NODE_ENV === 'production' ?
-	    protocol + 'recapture.io/beacon/' + endpoint :
-	    protocol + 'localhost:4000/beacon/' + endpoint;
-	    */
-	    var url = protocol + 'localhost:4000/beacon/' + endpoint;
+
+	  var baseURL =  false ?
+	    'https://www.recapture.io/beacon/' :
+	    'http://localhost:4000/beacon/';
 
 	  return request.post(
-	    url,
+	    baseURL + endpoint,
 	    data,
 	    {
 	      dataType: 'json',
@@ -3067,10 +3063,12 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 35 */
+/* 35 */,
+/* 36 */,
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(36);
+	var uuid = __webpack_require__(38);
 	var storage = __webpack_require__(3);
 	var actions = __webpack_require__(2);
 
@@ -3131,7 +3129,7 @@ var ra =
 
 
 /***/ },
-/* 36 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;//     uuid.js
@@ -3384,10 +3382,10 @@ var ra =
 
 
 /***/ },
-/* 37 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var css = __webpack_require__(38);
+	var css = __webpack_require__(40);
 
 	// shim layer with setTimeout fallback
 	window.requestAnimFrame = (function(){
@@ -3484,7 +3482,7 @@ var ra =
 	      left: 0,
 	      border: 'none',
 	      opacity: '0',
-	      transition: 'all 400ms cubic-bezier(.25,.8,.25,1)',
+	      transition: 'opacity 400ms cubic-bezier(.25,.8,.25,1)',
 	      zIndex: 999
 	    });
 
@@ -3508,11 +3506,11 @@ var ra =
 
 
 /***/ },
-/* 38 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(39)
-	var toCamelCase = __webpack_require__(40)
+	var prefix = __webpack_require__(41)
+	var toCamelCase = __webpack_require__(42)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -3580,7 +3578,7 @@ var ra =
 
 
 /***/ },
-/* 39 */
+/* 41 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -3604,11 +3602,11 @@ var ra =
 	}
 
 /***/ },
-/* 40 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(41);
+	var toSpace = __webpack_require__(43);
 
 
 	/**
@@ -3633,11 +3631,11 @@ var ra =
 	}
 
 /***/ },
-/* 41 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(42);
+	var clean = __webpack_require__(44);
 
 
 	/**
@@ -3662,7 +3660,7 @@ var ra =
 	}
 
 /***/ },
-/* 42 */
+/* 44 */
 /***/ function(module, exports) {
 
 	
@@ -3741,7 +3739,7 @@ var ra =
 	}
 
 /***/ },
-/* 43 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var storage = __webpack_require__(3);
@@ -3763,7 +3761,7 @@ var ra =
 
 
 /***/ },
-/* 44 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendPage = __webpack_require__(2).sendPage;
@@ -3802,7 +3800,7 @@ var ra =
 
 
 /***/ },
-/* 45 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendProduct = __webpack_require__(2).sendProduct;
@@ -3820,11 +3818,11 @@ var ra =
 
 
 /***/ },
-/* 46 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(47);
-	var eventListener = __webpack_require__(48);
+	var isEmail = __webpack_require__(49);
+	var eventListener = __webpack_require__(50);
 	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
@@ -3901,7 +3899,7 @@ var ra =
 
 
 /***/ },
-/* 47 */
+/* 49 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {
@@ -3912,7 +3910,7 @@ var ra =
 
 
 /***/ },
-/* 48 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){

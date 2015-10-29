@@ -3,16 +3,13 @@ var createAction = require('redux-actions').createAction;
 var request = require('qwest');
 
 function sendRequest(endpoint, data) {
-  var protocol = document.location.protocol === 'https:' ? 'https://' : 'http://';
-  /*
-  var url = process.env.NODE_ENV === 'production' ?
-    protocol + 'recapture.io/beacon/' + endpoint :
-    protocol + 'localhost:4000/beacon/' + endpoint;
-    */
-    var url = protocol + 'localhost:4000/beacon/' + endpoint;
+
+  var baseURL = process.env.NODE_ENV === 'production' ?
+    'https://www.recapture.io/beacon/' :
+    'http://localhost:4000/beacon/';
 
   return request.post(
-    url,
+    baseURL + endpoint,
     data,
     {
       dataType: 'json',

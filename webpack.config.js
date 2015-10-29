@@ -20,7 +20,7 @@ if (isProduction) {
   plugins.push(new webpack.optimize.UglifyJsPlugin(uglifyConfig));
 }
 
-plugins.push(new webpack.BannerPlugin('Recapture.io analytics v' + version + ' | MIT & BSD'));
+plugins.push(new webpack.BannerPlugin('Recapture.io SDK v' + version + ' | MIT & BSD'));
 
 module.exports = {
   entry: path.join(__dirname, 'src/index.js'),

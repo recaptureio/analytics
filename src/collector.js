@@ -95,7 +95,7 @@ module.exports = function(state) {
       left: 0,
       border: 'none',
       opacity: '0',
-      transition: 'all 400ms cubic-bezier(.25,.8,.25,1)',
+      transition: 'opacity 400ms cubic-bezier(.25,.8,.25,1)',
       zIndex: 999
     });
 
