@@ -47,12 +47,12 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var state = __webpack_require__(1);
-	var customer = __webpack_require__(35)(state);
-	var collector = __webpack_require__(37)(state);
-	var init = __webpack_require__(43)(state, customer);
-	var page = __webpack_require__(44)(state);
-	var product = __webpack_require__(45)(state);
-	var email = __webpack_require__(46)(state, customer);
+	var customer = __webpack_require__(46)(state);
+	var collector = __webpack_require__(48)(state);
+	var init = __webpack_require__(54)(state, customer);
+	var page = __webpack_require__(55)(state);
+	var product = __webpack_require__(56)(state);
+	var email = __webpack_require__(57)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -96,9 +96,9 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var actions = __webpack_require__(2);
-	var redux = __webpack_require__(24);
-	var thunk = __webpack_require__(33);
-	var createLogger = __webpack_require__(34);
+	var redux = __webpack_require__(35);
+	var thunk = __webpack_require__(44);
+	var createLogger = __webpack_require__(45);
 
 	var createStore = redux.createStore;
 	var applyMiddleware = redux.applyMiddleware;
@@ -205,15 +205,21 @@ var ra =
 	    'https://www.recapture.io/beacon/' :
 	    'http://localhost:4000/beacon/';
 
-	  return request.post(
-	    baseURL + endpoint,
-	    data,
-	    {
-	      dataType: 'json',
-	      responseType: 'json',
-	      headers: { 'Api-Key': data.api_key }
-	    }
-	  );
+	  request('POST', baseURL + endpoint, {
+	    json: data,
+	    headers: { 'Api-Key': data.api_key }
+	  });
+
+	  // qwest.js syntax
+	  // return request.post(
+	  //   baseURL + endpoint,
+	  //   data,
+	  //   {
+	  //     dataType: 'json',
+	  //     responseType: 'json',
+	  //     headers: { 'Api-Key': data.api_key }
+	  //   }
+	  // );
 	}
 
 	/**
@@ -1601,599 +1607,379 @@ var ra =
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
+	'use strict';
 
-	module.exports = function() {
+	var Promise = __webpack_require__(20);
+	var Response = __webpack_require__(28);
+	var handleQs = __webpack_require__(29);
 
-		var global = this,
-			pinkyswear = __webpack_require__(20),
-			jparam = __webpack_require__(23),
-			// Default response type for XDR in auto mode
-			defaultXdrResponseType = 'json',
-			// Variables for limit mechanism
-			limit = null,
-			requests = 0,
-			request_stack = [],
-			// Get XMLHttpRequest object
-			getXHR = function(){
-				return global.XMLHttpRequest?
-						new global.XMLHttpRequest():
-						new ActiveXObject('Microsoft.XMLHTTP');
-			},
-			// Guess XHR version
-			xhr2 = (getXHR().responseType===''),
+	module.exports = doRequest;
+	function doRequest(method, url, options, callback) {
+	  var result = new Promise(function (resolve, reject) {
+	    var xhr = new window.XMLHttpRequest();
 
-		// Core function
-		qwest = function(method, url, data, options, before) {
+	    // check types of arguments
 
-			// Format
-			method = method.toUpperCase();
-			data = data || null;
-			options = options || {};
+	    if (typeof method !== 'string') {
+	      throw new TypeError('The method must be a string.');
+	    }
+	    if (typeof url !== 'string') {
+	      throw new TypeError('The URL/path must be a string.');
+	    }
+	    if (typeof options === 'function') {
+	      callback = options;
+	      options = {};
+	    }
+	    if (options === null || options === undefined) {
+	      options = {};
+	    }
+	    if (typeof options !== 'object') {
+	      throw new TypeError('Options must be an object (or null).');
+	    }
+	    if (typeof callback !== 'function') {
+	      callback = undefined;
+	    }
 
-			// Define variables
-			var nativeResponseParsing = false,
-				crossOrigin,
-				xhr,
-				xdr = false,
-				timeoutInterval,
-				aborted = false,
-				attempts = 0,
-				headers = {},
-				mimeTypes = {
-					text: '*/*',
-					xml: 'text/xml',
-					json: 'application/json',
-					post: 'application/x-www-form-urlencoded'
-				},
-				accept = {
-					text: '*/*',
-					xml: 'application/xml; q=1.0, text/xml; q=0.8, */*; q=0.1',
-					json: 'application/json; q=1.0, text/*; q=0.8, */*; q=0.1'
-				},
-				vars = '',
-				i, j,
-				serialized,
-				response,
-				sending = false,
-				delayed = false,
-				timeout_start,
+	    method = method.toUpperCase();
+	    options.headers = options.headers || {};
 
-			// Create the promise
-			promise = pinkyswear(function(pinky) {
-				pinky['catch'] = function(f) {
-					return pinky.then(null, f);
-				};
-				pinky.complete = function(f) {
-					return pinky.then(f, f);
-				};
-				// Override
-				if('pinkyswear' in options) {
-					for(i in options.pinkyswear) {
-						pinky[i] = options.pinkyswear[i];
-					}
-				}
-				pinky.send = function() {
-					// Prevent further send() calls
-					if(sending) {
-						return;
-					}
-					// Reached request limit, get out!
-					if(requests == limit) {
-						request_stack.push(pinky);
-						return;
-					}
-					++requests;
-					sending = true;
-					// Start the chrono
-					timeout_start = Date.now();
-					// Get XHR object
-					xhr = getXHR();
-					if(crossOrigin) {
-						if(!('withCredentials' in xhr) && global.XDomainRequest) {
-							xhr = new XDomainRequest(); // CORS with IE8/9
-							xdr = true;
-							if(method!='GET' && method!='POST') {
-								method = 'POST';
-							}
-						}
-					}
-					// Open connection
-					if(xdr) {
-						xhr.open(method, url);
-					}
-					else {
-						xhr.open(method, url, options.async, options.user, options.password);
-						if(xhr2 && options.async) {
-							xhr.withCredentials = options.withCredentials;
-						}
-					}
-					// Set headers
-					if(!xdr) {
-						for(var i in headers) {
-							if(headers[i]) {
-								xhr.setRequestHeader(i, headers[i]);
-							}
-						}
-					}
-					// Verify if the response type is supported by the current browser
-					if(xhr2 && options.responseType!='document' && options.responseType!='auto') { // Don't verify for 'document' since we're using an internal routine
-						try {
-							xhr.responseType = options.responseType;
-							nativeResponseParsing = (xhr.responseType==options.responseType);
-						}
-						catch(e){}
-					}
-					// Plug response handler
-					if(xhr2 || xdr) {
-						xhr.onload = handleResponse;
-						xhr.onerror = handleError;
-					}
-					else {
-						xhr.onreadystatechange = function() {
-							if(xhr.readyState == 4) {
-								handleResponse();
-							}
-						};
-					}
-					// Override mime type to ensure the response is well parsed
-					if(options.responseType!='auto' && 'overrideMimeType' in xhr) {
-						xhr.overrideMimeType(mimeTypes[options.responseType]);
-					}
-					// Run 'before' callback
-					if(before) {
-						before(xhr);
-					}
-					// Send request
-					if(xdr) {
-						setTimeout(function(){ // https://developer.mozilla.org/en-US/docs/Web/API/XDomainRequest
-							xhr.send(method!='GET'?data:null);
-						},0);
-					}
-					else {
-						xhr.send(method!='GET'?data:null);
-					}
-				};
-				return pinky;
-			}),
 
-			// Handle the response
-			handleResponse = function() {
-				// Prepare
-				var i, responseType;
-				--requests;
-				sending = false;
-				// Verify timeout state
-				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(Date.now()-timeout_start >= options.timeout) {
-					if(!options.attempts || ++attempts!=options.attempts) {
-						promise.send();
-					}
-					else {
-						promise(false, [xhr,response,new Error('Timeout ('+url+')')]);
-					}
-					return;
-				}
-				// Launch next stacked request
-				if(request_stack.length) {
-					request_stack.shift().send();
-				}
-				// Handle response
-				try{
-					// Process response
-					if(nativeResponseParsing && 'response' in xhr && xhr.response!==null) {
-						response = xhr.response;
-					}
-					else if(options.responseType == 'document') {
-						var frame = document.createElement('iframe');
-						frame.style.display = 'none';
-						document.body.appendChild(frame);
-						frame.contentDocument.open();
-						frame.contentDocument.write(xhr.response);
-						frame.contentDocument.close();
-						response = frame.contentDocument;
-						document.body.removeChild(frame);
-					}
-					else{
-						// Guess response type
-						responseType = options.responseType;
-						if(responseType == 'auto') {
-							if(xdr) {
-								responseType = defaultXdrResponseType;
-							}
-							else {
-								var ct = xhr.getResponseHeader('Content-Type') || '';
-								if(ct.indexOf(mimeTypes.json)>-1) {
-									responseType = 'json';
-								}
-								else if(ct.indexOf(mimeTypes.xml)>-1) {
-									responseType = 'xml';
-								}
-								else {
-									responseType = 'text';
-								}
-							}
-						}
-						// Handle response type
-						switch(responseType) {
-							case 'json':
-								try {
-									if('JSON' in global) {
-										response = JSON.parse(xhr.responseText);
-									}
-									else {
-										response = eval('('+xhr.responseText+')');
-									}
-								}
-								catch(e) {
-									throw "Error while parsing JSON body : "+e;
-								}
-								break;
-							case 'xml':
-								// Based on jQuery's parseXML() function
-								try {
-									// Standard
-									if(global.DOMParser) {
-										response = (new DOMParser()).parseFromString(xhr.responseText,'text/xml');
-									}
-									// IE<9
-									else {
-										response = new ActiveXObject('Microsoft.XMLDOM');
-										response.async = 'false';
-										response.loadXML(xhr.responseText);
-									}
-								}
-								catch(e) {
-									response = undefined;
-								}
-								if(!response || !response.documentElement || response.getElementsByTagName('parsererror').length) {
-									throw 'Invalid XML';
-								}
-								break;
-							default:
-								response = xhr.responseText;
-						}
-					}
-					// Late status code verification to allow passing data when, per example, a 409 is returned
-					// --- https://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
-					if('status' in xhr && !/^2|1223/.test(xhr.status)) {
-						throw xhr.status+' ('+xhr.statusText+')';
-					}
-					// Fulfilled
-					promise(true, [xhr,response]);
-				}
-				catch(e) {
-					// Rejected
-					promise(false, [xhr,response,e]);
-				}
-			},
+	    function attempt(n) {
+	      doRequest(method, url, {
+	        qs: options.qs,
+	        headers: options.headers,
+	        timeout: options.timeout
+	      }).nodeify(function (err, res) {
+	        var retry = err || res.statusCode >= 400;
+	        if (typeof options.retry === 'function') {
+	          retry = options.retry(err, res, n + 1);
+	        }
+	        if (n >= (options.maxRetries | 5)) {
+	          retry = false;
+	        }
+	        if (retry) {
+	          var delay = options.retryDelay;
+	          if (typeof options.retryDelay === 'function') {
+	            delay = options.retryDelay(err, res, n + 1);
+	          }
+	          delay = delay || 200;
+	          setTimeout(function () {
+	            attempt(n + 1);
+	          }, delay);
+	        } else {
+	          if (err) reject(err);
+	          else resolve(res);
+	        }
+	      });
+	    }
+	    if (options.retry && method === 'GET') {
+	      return attempt(0);
+	    }
 
-			// Handle errors
-			handleError = function(e) {
-				--requests;
-				promise(false, [xhr,null,new Error('Connection aborted')]);
-			};
+	    // handle cross domain
 
-			// Normalize options
-			options.async = 'async' in options?!!options.async:true;
-			options.cache = 'cache' in options?!!options.cache:false;
-			options.dataType = 'dataType' in options?options.dataType.toLowerCase():'post';
-			options.responseType = 'responseType' in options?options.responseType.toLowerCase():'auto';
-			options.user = options.user || '';
-			options.password = options.password || '';
-			options.withCredentials = !!options.withCredentials;
-			options.timeout = 'timeout' in options?parseInt(options.timeout,10):30000;
-			options.attempts = 'attempts' in options?parseInt(options.attempts,10):1;
+	    var match;
+	    var crossDomain = !!((match = /^([\w-]+:)?\/\/([^\/]+)/.exec(options.uri)) && (match[2] != window.location.host));
+	    if (!crossDomain) options.headers['X-Requested-With'] = 'XMLHttpRequest';
 
-			// Guess if we're dealing with a cross-origin request
-			i = url.match(/\/\/(.+?)\//);
-			crossOrigin = i && (i[1]?i[1]!=location.host:false);
+	    // handle query string
+	    if (options.qs) {
+	      url = handleQs(url, options.qs);
+	    }
 
-			// Prepare data
-			if('ArrayBuffer' in global && data instanceof ArrayBuffer) {
-				options.dataType = 'arraybuffer';
-			}
-			else if('Blob' in global && data instanceof Blob) {
-				options.dataType = 'blob';
-			}
-			else if('Document' in global && data instanceof Document) {
-				options.dataType = 'document';
-			}
-			else if('FormData' in global && data instanceof FormData) {
-				options.dataType = 'formdata';
-			}
-			switch(options.dataType) {
-				case 'json':
-					data = JSON.stringify(data);
-					break;
-				case 'post':
-					data = jparam(data);
-			}
+	    // handle json body
+	    if (options.json) {
+	      options.body = JSON.stringify(options.json);
+	      options.headers['Content-Type'] = 'application/json';
+	    }
 
-			// Prepare headers
-			if(options.headers) {
-				var format = function(match,p1,p2) {
-					return p1 + p2.toUpperCase();
-				};
-				for(i in options.headers) {
-					headers[i.replace(/(^|-)([^-])/g,format)] = options.headers[i];
-				}
-			}
-			if(!('Content-Type' in headers) && method!='GET') {
-				if(options.dataType in mimeTypes) {
-					if(mimeTypes[options.dataType]) {
-						headers['Content-Type'] = mimeTypes[options.dataType];
-					}
-				}
-			}
-			if(!headers.Accept) {
-				headers.Accept = (options.responseType in accept)?accept[options.responseType]:'*/*';
-			}
-			if(!crossOrigin && !('X-Requested-With' in headers)) { // (that header breaks in legacy browsers with CORS)
-				headers['X-Requested-With'] = 'XMLHttpRequest';
-			}
-			if(!options.cache && !('Cache-Control' in headers)) {
-				headers['Cache-Control'] = 'no-cache';
-			}
+	    if (options.timeout) {
+	      xhr.timeout = options.timeout;
+	      var start = Date.now();
+	      xhr.ontimeout = function () {
+	        var duration = Date.now() - start;
+	        var err = new Error('Request timed out after ' + duration + 'ms');
+	        err.timeout = true;
+	        err.duration = duration;
+	        reject(err);
+	      };
+	    }
+	    xhr.onreadystatechange = function () {
+	      if (xhr.readyState === 4) {
+	        var headers = {};
+	        xhr.getAllResponseHeaders().split('\r\n').forEach(function (header) {
+	          var h = header.split(':');
+	          if (h.length > 1) {
+	            headers[h[0].toLowerCase()] = h.slice(1).join(':').trim();
+	          }
+	        });
+	        var res = new Response(xhr.status, headers, xhr.responseText);
+	        res.url = url;
+	        resolve(res);
+	      }
+	    };
 
-			// Prepare URL
-			if(method=='GET' && data) {
-				vars += data;
-			}
-			if(vars) {
-				url += (/\?/.test(url)?'&':'?')+vars;
-			}
+	    // method, url, async
+	    xhr.open(method, url, true);
 
-			// Start the request
-			if(options.async) {
-				promise.send();
-			}
+	    for (var name in options.headers) {
+	      xhr.setRequestHeader(name, options.headers[name]);
+	    }
 
-			// Return promise
-			return promise;
-
-		};
-
-		// Return the external qwest object
-		return {
-			base: '',
-			get: function(url, data, options, before) {
-				return qwest('GET', this.base+url, data, options, before);
-			},
-			post: function(url, data, options, before) {
-				return qwest('POST', this.base+url, data, options, before);
-			},
-			put: function(url, data, options, before) {
-				return qwest('PUT', this.base+url, data, options, before);
-			},
-			'delete': function(url, data, options, before) {
-				return qwest('DELETE', this.base+url, data, options, before);
-			},
-			map: function(type, url, data, options, before) {
-				return qwest(type.toUpperCase(), this.base+url, data, options, before);
-			},
-			xhr2: xhr2,
-			// obsolete
-			limit: function(by) {
-				limit = by;
-			},
-			// obsolete
-			setDefaultXdrResponseType: function(type) {
-				defaultXdrResponseType = type.toLowerCase();
-			}
-		};
-
-	}();
+	    // avoid sending empty string (#319)
+	    xhr.send(options.body ? options.body : null);
+	  });
+	  result.getBody = function () {
+	    return result.then(function (res) { return res.getBody(); });
+	  };
+	  return result.nodeify(callback);
+	}
 
 
 /***/ },
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module, setImmediate, process) {/*
-	 * PinkySwear.js 2.2.2 - Minimalistic implementation of the Promises/A+ spec
-	 * 
-	 * Public Domain. Use, modify and distribute it any way you like. No attribution required.
-	 *
-	 * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-	 *
-	 * PinkySwear is a very small implementation of the Promises/A+ specification. After compilation with the
-	 * Google Closure Compiler and gzipping it weighs less than 500 bytes. It is based on the implementation for 
-	 * Minified.js and should be perfect for embedding. 
-	 *
-	 *
-	 * PinkySwear has just three functions.
-	 *
-	 * To create a new promise in pending state, call pinkySwear():
-	 *         var promise = pinkySwear();
-	 *
-	 * The returned object has a Promises/A+ compatible then() implementation:
-	 *          promise.then(function(value) { alert("Success!"); }, function(value) { alert("Failure!"); });
-	 *
-	 *
-	 * The promise returned by pinkySwear() is a function. To fulfill the promise, call the function with true as first argument and
-	 * an optional array of values to pass to the then() handler. By putting more than one value in the array, you can pass more than one
-	 * value to the then() handlers. Here an example to fulfill a promsise, this time with only one argument: 
-	 *         promise(true, [42]);
-	 *
-	 * When the promise has been rejected, call it with false. Again, there may be more than one argument for the then() handler:
-	 *         promise(true, [6, 6, 6]);
-	 *         
-	 * You can obtain the promise's current state by calling the function without arguments. It will be true if fulfilled,
-	 * false if rejected, and otherwise undefined.
-	 * 		   var state = promise(); 
-	 * 
-	 * https://github.com/timjansen/PinkySwear.js
-	 */
-	(function(target) {
-		var undef;
+	'use strict';
 
-		function isFunction(f) {
-			return typeof f == 'function';
-		}
-		function isObject(f) {
-			return typeof f == 'object';
-		}
-		function defer(callback) {
-			if (typeof setImmediate != 'undefined')
-				setImmediate(callback);
-			else if (typeof process != 'undefined' && process['nextTick'])
-				process['nextTick'](callback);
-			else
-				setTimeout(callback, 0);
-		}
-
-		target[0][target[1]] = function pinkySwear(extend) {
-			var state;           // undefined/null = pending, true = fulfilled, false = rejected
-			var values = [];     // an array of values as arguments for the then() handlers
-			var deferred = [];   // functions to call when set() is invoked
-
-			var set = function(newState, newValues) {
-				if (state == null && newState != null) {
-					state = newState;
-					values = newValues;
-					if (deferred.length)
-						defer(function() {
-							for (var i = 0; i < deferred.length; i++)
-								deferred[i]();
-						});
-				}
-				return state;
-			};
-
-			set['then'] = function (onFulfilled, onRejected) {
-				var promise2 = pinkySwear(extend);
-				var callCallbacks = function() {
-		    		try {
-		    			var f = (state ? onFulfilled : onRejected);
-		    			if (isFunction(f)) {
-			   				function resolve(x) {
-							    var then, cbCalled = 0;
-			   					try {
-					   				if (x && (isObject(x) || isFunction(x)) && isFunction(then = x['then'])) {
-											if (x === promise2)
-												throw new TypeError();
-											then['call'](x,
-												function() { if (!cbCalled++) resolve.apply(undef,arguments); } ,
-												function(value){ if (!cbCalled++) promise2(false,[value]);});
-					   				}
-					   				else
-					   					promise2(true, arguments);
-			   					}
-			   					catch(e) {
-			   						if (!cbCalled++)
-			   							promise2(false, [e]);
-			   					}
-			   				}
-			   				resolve(f.apply(undef, values || []));
-			   			}
-			   			else
-			   				promise2(state, values);
-					}
-					catch (e) {
-						promise2(false, [e]);
-					}
-				};
-				if (state != null)
-					defer(callCallbacks);
-				else
-					deferred.push(callCallbacks);
-				return promise2;
-			};
-	        if(extend){
-	            set = extend(set);
-	        }
-			return set;
-		};
-	})( false ? [window, 'pinkySwear'] : [module, 'exports']);
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module), __webpack_require__(21).setImmediate, __webpack_require__(22)))
+	module.exports = __webpack_require__(21)
+	__webpack_require__(25)
+	__webpack_require__(26)
+	__webpack_require__(27)
 
 /***/ },
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(22).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
+	'use strict';
 
-	// DOM APIs, for completeness
+	var asap = __webpack_require__(22)
 
-	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout =
-	exports.clearInterval = function(timeout) { timeout.close(); };
+	module.exports = Promise;
+	function Promise(fn) {
+	  if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new')
+	  if (typeof fn !== 'function') throw new TypeError('not a function')
+	  var state = null
+	  var value = null
+	  var deferreds = []
+	  var self = this
 
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
-	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
-	};
-
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function(item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
-	};
-
-	exports.unenroll = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
-	};
-
-	exports._unrefActive = exports.active = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout)
-	        item._onTimeout();
-	    }, msecs);
+	  this.then = function(onFulfilled, onRejected) {
+	    return new self.constructor(function(resolve, reject) {
+	      handle(new Handler(onFulfilled, onRejected, resolve, reject))
+	    })
 	  }
-	};
 
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-	  immediateIds[id] = true;
-
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
-	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
+	  function handle(deferred) {
+	    if (state === null) {
+	      deferreds.push(deferred)
+	      return
 	    }
-	  });
+	    asap(function() {
+	      var cb = state ? deferred.onFulfilled : deferred.onRejected
+	      if (cb === null) {
+	        (state ? deferred.resolve : deferred.reject)(value)
+	        return
+	      }
+	      var ret
+	      try {
+	        ret = cb(value)
+	      }
+	      catch (e) {
+	        deferred.reject(e)
+	        return
+	      }
+	      deferred.resolve(ret)
+	    })
+	  }
 
-	  return id;
-	};
+	  function resolve(newValue) {
+	    try { //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+	      if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.')
+	      if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+	        var then = newValue.then
+	        if (typeof then === 'function') {
+	          doResolve(then.bind(newValue), resolve, reject)
+	          return
+	        }
+	      }
+	      state = true
+	      value = newValue
+	      finale()
+	    } catch (e) { reject(e) }
+	  }
 
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-	  delete immediateIds[id];
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21).setImmediate, __webpack_require__(21).clearImmediate))
+	  function reject(newValue) {
+	    state = false
+	    value = newValue
+	    finale()
+	  }
+
+	  function finale() {
+	    for (var i = 0, len = deferreds.length; i < len; i++)
+	      handle(deferreds[i])
+	    deferreds = null
+	  }
+
+	  doResolve(fn, resolve, reject)
+	}
+
+
+	function Handler(onFulfilled, onRejected, resolve, reject){
+	  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null
+	  this.onRejected = typeof onRejected === 'function' ? onRejected : null
+	  this.resolve = resolve
+	  this.reject = reject
+	}
+
+	/**
+	 * Take a potentially misbehaving resolver function and make sure
+	 * onFulfilled and onRejected are only called once.
+	 *
+	 * Makes no guarantees about asynchrony.
+	 */
+	function doResolve(fn, onFulfilled, onRejected) {
+	  var done = false;
+	  try {
+	    fn(function (value) {
+	      if (done) return
+	      done = true
+	      onFulfilled(value)
+	    }, function (reason) {
+	      if (done) return
+	      done = true
+	      onRejected(reason)
+	    })
+	  } catch (ex) {
+	    if (done) return
+	    done = true
+	    onRejected(ex)
+	  }
+	}
+
 
 /***/ },
 /* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {
+	// Use the fastest possible means to execute a task in a future turn
+	// of the event loop.
+
+	// linked list of tasks (single, with head node)
+	var head = {task: void 0, next: null};
+	var tail = head;
+	var flushing = false;
+	var requestFlush = void 0;
+	var isNodeJS = false;
+
+	function flush() {
+	    /* jshint loopfunc: true */
+
+	    while (head.next) {
+	        head = head.next;
+	        var task = head.task;
+	        head.task = void 0;
+	        var domain = head.domain;
+
+	        if (domain) {
+	            head.domain = void 0;
+	            domain.enter();
+	        }
+
+	        try {
+	            task();
+
+	        } catch (e) {
+	            if (isNodeJS) {
+	                // In node, uncaught exceptions are considered fatal errors.
+	                // Re-throw them synchronously to interrupt flushing!
+
+	                // Ensure continuation if the uncaught exception is suppressed
+	                // listening "uncaughtException" events (as domains does).
+	                // Continue in next event to avoid tick recursion.
+	                if (domain) {
+	                    domain.exit();
+	                }
+	                setTimeout(flush, 0);
+	                if (domain) {
+	                    domain.enter();
+	                }
+
+	                throw e;
+
+	            } else {
+	                // In browsers, uncaught exceptions are not fatal.
+	                // Re-throw them asynchronously to avoid slow-downs.
+	                setTimeout(function() {
+	                   throw e;
+	                }, 0);
+	            }
+	        }
+
+	        if (domain) {
+	            domain.exit();
+	        }
+	    }
+
+	    flushing = false;
+	}
+
+	if (typeof process !== "undefined" && process.nextTick) {
+	    // Node.js before 0.9. Note that some fake-Node environments, like the
+	    // Mocha test runner, introduce a `process` global without a `nextTick`.
+	    isNodeJS = true;
+
+	    requestFlush = function () {
+	        process.nextTick(flush);
+	    };
+
+	} else if (typeof setImmediate === "function") {
+	    // In IE10, Node.js 0.9+, or https://github.com/NobleJS/setImmediate
+	    if (typeof window !== "undefined") {
+	        requestFlush = setImmediate.bind(window, flush);
+	    } else {
+	        requestFlush = function () {
+	            setImmediate(flush);
+	        };
+	    }
+
+	} else if (typeof MessageChannel !== "undefined") {
+	    // modern browsers
+	    // http://www.nonblocking.io/2011/06/windownexttick.html
+	    var channel = new MessageChannel();
+	    channel.port1.onmessage = flush;
+	    requestFlush = function () {
+	        channel.port2.postMessage(0);
+	    };
+
+	} else {
+	    // old browsers
+	    requestFlush = function () {
+	        setTimeout(flush, 0);
+	    };
+	}
+
+	function asap(task) {
+	    tail = tail.next = {
+	        task: task,
+	        domain: isNodeJS && process.domain,
+	        next: null
+	    };
+
+	    if (!flushing) {
+	        flushing = true;
+	        requestFlush();
+	    }
+	};
+
+	module.exports = asap;
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), __webpack_require__(24).setImmediate))
+
+/***/ },
+/* 23 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -2290,64 +2076,800 @@ var ra =
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
-	 */
-	/*global define */
-	(function (global) {
-	    'use strict';
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(23).nextTick;
+	var apply = Function.prototype.apply;
+	var slice = Array.prototype.slice;
+	var immediateIds = {};
+	var nextImmediateId = 0;
 
-	    var param = function (a) {
-	        var add = function (s, k, v) {
-	            v = typeof v === 'function' ? v() : v === null ? '' : v === undefined ? '' : v;
-	            s[s.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
-	        }, buildParams = function (prefix, obj, s) {
-	            var i, len, key;
+	// DOM APIs, for completeness
 
-	            if (Object.prototype.toString.call(obj) === '[object Array]') {
-	                for (i = 0, len = obj.length; i < len; i++) {
-	                    buildParams(prefix + '[' + (typeof obj[i] === 'object' ? i : '') + ']', obj[i], s);
-	                }
-	            } else if (obj && obj.toString() === '[object Object]') {
-	                for (key in obj) {
-	                    if (obj.hasOwnProperty(key)) {
-	                        if (prefix) {
-	                            buildParams(prefix + '[' + key + ']', obj[key], s, add);
-	                        } else {
-	                            buildParams(key, obj[key], s, add);
-	                        }
-	                    }
-	                }
-	            } else if (prefix) {
-	                add(s, prefix, obj);
-	            } else {
-	                for (key in obj) {
-	                    add(s, key, obj[key]);
-	                }
-	            }
-	            return s;
-	        };
-	        return buildParams('', a, []).join('&').replace(/%20/g, '+');
-	    };
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) { timeout.close(); };
 
-	    if (typeof module === 'object' && typeof module.exports === 'object') {
-	        module.exports = param;
-	    } else if (true) {
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	            return param;
-	        }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else {
-	        global.param = param;
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// That's not how node.js implements it but the exposed api is the same.
+	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+	  var id = nextImmediateId++;
+	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+	  immediateIds[id] = true;
+
+	  nextTick(function onNextTick() {
+	    if (immediateIds[id]) {
+	      // fn.call() is faster so we optimize for the common use-case
+	      // @see http://jsperf.com/call-apply-segu
+	      if (args) {
+	        fn.apply(null, args);
+	      } else {
+	        fn.call(null);
+	      }
+	      // Prevent ids from leaking
+	      exports.clearImmediate(id);
 	    }
+	  });
 
-	}(this));
+	  return id;
+	};
+
+	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+	  delete immediateIds[id];
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24).setImmediate, __webpack_require__(24).clearImmediate))
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Promise = __webpack_require__(21)
+	var asap = __webpack_require__(22)
+
+	module.exports = Promise
+	Promise.prototype.done = function (onFulfilled, onRejected) {
+	  var self = arguments.length ? this.then.apply(this, arguments) : this
+	  self.then(null, function (err) {
+	    asap(function () {
+	      throw err
+	    })
+	  })
+	}
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	//This file contains the ES6 extensions to the core Promises/A+ API
+
+	var Promise = __webpack_require__(21)
+	var asap = __webpack_require__(22)
+
+	module.exports = Promise
+
+	/* Static Functions */
+
+	function ValuePromise(value) {
+	  this.then = function (onFulfilled) {
+	    if (typeof onFulfilled !== 'function') return this
+	    return new Promise(function (resolve, reject) {
+	      asap(function () {
+	        try {
+	          resolve(onFulfilled(value))
+	        } catch (ex) {
+	          reject(ex);
+	        }
+	      })
+	    })
+	  }
+	}
+	ValuePromise.prototype = Promise.prototype
+
+	var TRUE = new ValuePromise(true)
+	var FALSE = new ValuePromise(false)
+	var NULL = new ValuePromise(null)
+	var UNDEFINED = new ValuePromise(undefined)
+	var ZERO = new ValuePromise(0)
+	var EMPTYSTRING = new ValuePromise('')
+
+	Promise.resolve = function (value) {
+	  if (value instanceof Promise) return value
+
+	  if (value === null) return NULL
+	  if (value === undefined) return UNDEFINED
+	  if (value === true) return TRUE
+	  if (value === false) return FALSE
+	  if (value === 0) return ZERO
+	  if (value === '') return EMPTYSTRING
+
+	  if (typeof value === 'object' || typeof value === 'function') {
+	    try {
+	      var then = value.then
+	      if (typeof then === 'function') {
+	        return new Promise(then.bind(value))
+	      }
+	    } catch (ex) {
+	      return new Promise(function (resolve, reject) {
+	        reject(ex)
+	      })
+	    }
+	  }
+
+	  return new ValuePromise(value)
+	}
+
+	Promise.all = function (arr) {
+	  var args = Array.prototype.slice.call(arr)
+
+	  return new Promise(function (resolve, reject) {
+	    if (args.length === 0) return resolve([])
+	    var remaining = args.length
+	    function res(i, val) {
+	      try {
+	        if (val && (typeof val === 'object' || typeof val === 'function')) {
+	          var then = val.then
+	          if (typeof then === 'function') {
+	            then.call(val, function (val) { res(i, val) }, reject)
+	            return
+	          }
+	        }
+	        args[i] = val
+	        if (--remaining === 0) {
+	          resolve(args);
+	        }
+	      } catch (ex) {
+	        reject(ex)
+	      }
+	    }
+	    for (var i = 0; i < args.length; i++) {
+	      res(i, args[i])
+	    }
+	  })
+	}
+
+	Promise.reject = function (value) {
+	  return new Promise(function (resolve, reject) { 
+	    reject(value);
+	  });
+	}
+
+	Promise.race = function (values) {
+	  return new Promise(function (resolve, reject) { 
+	    values.forEach(function(value){
+	      Promise.resolve(value).then(resolve, reject);
+	    })
+	  });
+	}
+
+	/* Prototype Methods */
+
+	Promise.prototype['catch'] = function (onRejected) {
+	  return this.then(null, onRejected);
+	}
 
 
 /***/ },
-/* 24 */
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	//This file contains then/promise specific extensions that are only useful for node.js interop
+
+	var Promise = __webpack_require__(21)
+	var asap = __webpack_require__(22)
+
+	module.exports = Promise
+
+	/* Static Functions */
+
+	Promise.denodeify = function (fn, argumentCount) {
+	  argumentCount = argumentCount || Infinity
+	  return function () {
+	    var self = this
+	    var args = Array.prototype.slice.call(arguments)
+	    return new Promise(function (resolve, reject) {
+	      while (args.length && args.length > argumentCount) {
+	        args.pop()
+	      }
+	      args.push(function (err, res) {
+	        if (err) reject(err)
+	        else resolve(res)
+	      })
+	      var res = fn.apply(self, args)
+	      if (res && (typeof res === 'object' || typeof res === 'function') && typeof res.then === 'function') {
+	        resolve(res)
+	      }
+	    })
+	  }
+	}
+	Promise.nodeify = function (fn) {
+	  return function () {
+	    var args = Array.prototype.slice.call(arguments)
+	    var callback = typeof args[args.length - 1] === 'function' ? args.pop() : null
+	    var ctx = this
+	    try {
+	      return fn.apply(this, arguments).nodeify(callback, ctx)
+	    } catch (ex) {
+	      if (callback === null || typeof callback == 'undefined') {
+	        return new Promise(function (resolve, reject) { reject(ex) })
+	      } else {
+	        asap(function () {
+	          callback.call(ctx, ex)
+	        })
+	      }
+	    }
+	  }
+	}
+
+	Promise.prototype.nodeify = function (callback, ctx) {
+	  if (typeof callback != 'function') return this
+
+	  this.then(function (value) {
+	    asap(function () {
+	      callback.call(ctx, null, value)
+	    })
+	  }, function (err) {
+	    asap(function () {
+	      callback.call(ctx, err)
+	    })
+	  })
+	}
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = Response;
+
+	/**
+	 * A response from a web request
+	 *
+	 * @param {Number} statusCode
+	 * @param {Object} headers
+	 * @param {Buffer} body
+	 * @param {String} url
+	 */
+	function Response(statusCode, headers, body, url) {
+	  if (typeof statusCode !== 'number') {
+	    throw new TypeError('statusCode must be a number but was ' + (typeof statusCode));
+	  }
+	  if (headers === null) {
+	    throw new TypeError('headers cannot be null');
+	  }
+	  if (typeof headers !== 'object') {
+	    throw new TypeError('headers must be an object but was ' + (typeof headers));
+	  }
+	  this.statusCode = statusCode;
+	  this.headers = {};
+	  for (var key in headers) {
+	    this.headers[key.toLowerCase()] = headers[key];
+	  }
+	  this.body = body;
+	  this.url = url;
+	}
+
+	Response.prototype.getBody = function (encoding) {
+	  if (this.statusCode >= 300) {
+	    var err = new Error('Server responded with status code '
+	                    + this.statusCode + ':\n' + this.body.toString());
+	    err.statusCode = this.statusCode;
+	    err.headers = this.headers;
+	    err.body = this.body;
+	    err.url = this.url;
+	    throw err;
+	  }
+	  return encoding ? this.body.toString(encoding) : this.body;
+	};
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var parse = __webpack_require__(30).parse;
+	var stringify = __webpack_require__(30).stringify;
+
+	module.exports = handleQs;
+	function handleQs(url, query) {
+	  url = url.split('?');
+	  var start = url[0];
+	  var qs = (url[1] || '').split('#')[0];
+	  var end = url[1] && url[1].split('#').length > 1 ? '#' + url[1].split('#')[1] : '';
+
+	  var baseQs = parse(qs);
+	  for (var i in query) {
+	    baseQs[i] = query[i];
+	  }
+	  qs = stringify(baseQs);
+	  if (qs !== '') {
+	    qs = '?' + qs;
+	  }
+	  return start + qs + end;
+	}
+
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(31);
+
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Load modules
+
+	var Stringify = __webpack_require__(32);
+	var Parse = __webpack_require__(34);
+
+
+	// Declare internals
+
+	var internals = {};
+
+
+	module.exports = {
+	    stringify: Stringify,
+	    parse: Parse
+	};
+
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Load modules
+
+	var Utils = __webpack_require__(33);
+
+
+	// Declare internals
+
+	var internals = {
+	    delimiter: '&',
+	    arrayPrefixGenerators: {
+	        brackets: function (prefix, key) {
+	            return prefix + '[]';
+	        },
+	        indices: function (prefix, key) {
+	            return prefix + '[' + key + ']';
+	        },
+	        repeat: function (prefix, key) {
+	            return prefix;
+	        }
+	    }
+	};
+
+
+	internals.stringify = function (obj, prefix, generateArrayPrefix) {
+
+	    if (Utils.isBuffer(obj)) {
+	        obj = obj.toString();
+	    }
+	    else if (obj instanceof Date) {
+	        obj = obj.toISOString();
+	    }
+	    else if (obj === null) {
+	        obj = '';
+	    }
+
+	    if (typeof obj === 'string' ||
+	        typeof obj === 'number' ||
+	        typeof obj === 'boolean') {
+
+	        return [encodeURIComponent(prefix) + '=' + encodeURIComponent(obj)];
+	    }
+
+	    var values = [];
+
+	    if (typeof obj === 'undefined') {
+	        return values;
+	    }
+
+	    var objKeys = Object.keys(obj);
+	    for (var i = 0, il = objKeys.length; i < il; ++i) {
+	        var key = objKeys[i];
+	        if (Array.isArray(obj)) {
+	            values = values.concat(internals.stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix));
+	        }
+	        else {
+	            values = values.concat(internals.stringify(obj[key], prefix + '[' + key + ']', generateArrayPrefix));
+	        }
+	    }
+
+	    return values;
+	};
+
+
+	module.exports = function (obj, options) {
+
+	    options = options || {};
+	    var delimiter = typeof options.delimiter === 'undefined' ? internals.delimiter : options.delimiter;
+
+	    var keys = [];
+
+	    if (typeof obj !== 'object' ||
+	        obj === null) {
+
+	        return '';
+	    }
+
+	    var arrayFormat;
+	    if (options.arrayFormat in internals.arrayPrefixGenerators) {
+	        arrayFormat = options.arrayFormat;
+	    }
+	    else if ('indices' in options) {
+	        arrayFormat = options.indices ? 'indices' : 'repeat';
+	    }
+	    else {
+	        arrayFormat = 'indices';
+	    }
+
+	    var generateArrayPrefix = internals.arrayPrefixGenerators[arrayFormat];
+
+	    var objKeys = Object.keys(obj);
+	    for (var i = 0, il = objKeys.length; i < il; ++i) {
+	        var key = objKeys[i];
+	        keys = keys.concat(internals.stringify(obj[key], key, generateArrayPrefix));
+	    }
+
+	    return keys.join(delimiter);
+	};
+
+
+/***/ },
+/* 33 */
+/***/ function(module, exports) {
+
+	// Load modules
+
+
+	// Declare internals
+
+	var internals = {};
+
+
+	exports.arrayToObject = function (source) {
+
+	    var obj = {};
+	    for (var i = 0, il = source.length; i < il; ++i) {
+	        if (typeof source[i] !== 'undefined') {
+
+	            obj[i] = source[i];
+	        }
+	    }
+
+	    return obj;
+	};
+
+
+	exports.merge = function (target, source) {
+
+	    if (!source) {
+	        return target;
+	    }
+
+	    if (typeof source !== 'object') {
+	        if (Array.isArray(target)) {
+	            target.push(source);
+	        }
+	        else {
+	            target[source] = true;
+	        }
+
+	        return target;
+	    }
+
+	    if (typeof target !== 'object') {
+	        target = [target].concat(source);
+	        return target;
+	    }
+
+	    if (Array.isArray(target) &&
+	        !Array.isArray(source)) {
+
+	        target = exports.arrayToObject(target);
+	    }
+
+	    var keys = Object.keys(source);
+	    for (var k = 0, kl = keys.length; k < kl; ++k) {
+	        var key = keys[k];
+	        var value = source[key];
+
+	        if (!target[key]) {
+	            target[key] = value;
+	        }
+	        else {
+	            target[key] = exports.merge(target[key], value);
+	        }
+	    }
+
+	    return target;
+	};
+
+
+	exports.decode = function (str) {
+
+	    try {
+	        return decodeURIComponent(str.replace(/\+/g, ' '));
+	    } catch (e) {
+	        return str;
+	    }
+	};
+
+
+	exports.compact = function (obj, refs) {
+
+	    if (typeof obj !== 'object' ||
+	        obj === null) {
+
+	        return obj;
+	    }
+
+	    refs = refs || [];
+	    var lookup = refs.indexOf(obj);
+	    if (lookup !== -1) {
+	        return refs[lookup];
+	    }
+
+	    refs.push(obj);
+
+	    if (Array.isArray(obj)) {
+	        var compacted = [];
+
+	        for (var i = 0, il = obj.length; i < il; ++i) {
+	            if (typeof obj[i] !== 'undefined') {
+	                compacted.push(obj[i]);
+	            }
+	        }
+
+	        return compacted;
+	    }
+
+	    var keys = Object.keys(obj);
+	    for (i = 0, il = keys.length; i < il; ++i) {
+	        var key = keys[i];
+	        obj[key] = exports.compact(obj[key], refs);
+	    }
+
+	    return obj;
+	};
+
+
+	exports.isRegExp = function (obj) {
+	    return Object.prototype.toString.call(obj) === '[object RegExp]';
+	};
+
+
+	exports.isBuffer = function (obj) {
+
+	    if (obj === null ||
+	        typeof obj === 'undefined') {
+
+	        return false;
+	    }
+
+	    return !!(obj.constructor &&
+	        obj.constructor.isBuffer &&
+	        obj.constructor.isBuffer(obj));
+	};
+
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Load modules
+
+	var Utils = __webpack_require__(33);
+
+
+	// Declare internals
+
+	var internals = {
+	    delimiter: '&',
+	    depth: 5,
+	    arrayLimit: 20,
+	    parameterLimit: 1000
+	};
+
+
+	internals.parseValues = function (str, options) {
+
+	    var obj = {};
+	    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+
+	    for (var i = 0, il = parts.length; i < il; ++i) {
+	        var part = parts[i];
+	        var pos = part.indexOf(']=') === -1 ? part.indexOf('=') : part.indexOf(']=') + 1;
+
+	        if (pos === -1) {
+	            obj[Utils.decode(part)] = '';
+	        }
+	        else {
+	            var key = Utils.decode(part.slice(0, pos));
+	            var val = Utils.decode(part.slice(pos + 1));
+
+	            if (!Object.prototype.hasOwnProperty.call(obj, key)) {
+	                obj[key] = val;
+	            }
+	            else {
+	                obj[key] = [].concat(obj[key]).concat(val);
+	            }
+	        }
+	    }
+
+	    return obj;
+	};
+
+
+	internals.parseObject = function (chain, val, options) {
+
+	    if (!chain.length) {
+	        return val;
+	    }
+
+	    var root = chain.shift();
+
+	    var obj = {};
+	    if (root === '[]') {
+	        obj = [];
+	        obj = obj.concat(internals.parseObject(chain, val, options));
+	    }
+	    else {
+	        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
+	        var index = parseInt(cleanRoot, 10);
+	        var indexString = '' + index;
+	        if (!isNaN(index) &&
+	            root !== cleanRoot &&
+	            indexString === cleanRoot &&
+	            index >= 0 &&
+	            index <= options.arrayLimit) {
+
+	            obj = [];
+	            obj[index] = internals.parseObject(chain, val, options);
+	        }
+	        else {
+	            obj[cleanRoot] = internals.parseObject(chain, val, options);
+	        }
+	    }
+
+	    return obj;
+	};
+
+
+	internals.parseKeys = function (key, val, options) {
+
+	    if (!key) {
+	        return;
+	    }
+
+	    // The regex chunks
+
+	    var parent = /^([^\[\]]*)/;
+	    var child = /(\[[^\[\]]*\])/g;
+
+	    // Get the parent
+
+	    var segment = parent.exec(key);
+
+	    // Don't allow them to overwrite object prototype properties
+
+	    if (Object.prototype.hasOwnProperty(segment[1])) {
+	        return;
+	    }
+
+	    // Stash the parent if it exists
+
+	    var keys = [];
+	    if (segment[1]) {
+	        keys.push(segment[1]);
+	    }
+
+	    // Loop through children appending to the array until we hit depth
+
+	    var i = 0;
+	    while ((segment = child.exec(key)) !== null && i < options.depth) {
+
+	        ++i;
+	        if (!Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
+	            keys.push(segment[1]);
+	        }
+	    }
+
+	    // If there's a remainder, just add whatever is left
+
+	    if (segment) {
+	        keys.push('[' + key.slice(segment.index) + ']');
+	    }
+
+	    return internals.parseObject(keys, val, options);
+	};
+
+
+	module.exports = function (str, options) {
+
+	    if (str === '' ||
+	        str === null ||
+	        typeof str === 'undefined') {
+
+	        return {};
+	    }
+
+	    options = options || {};
+	    options.delimiter = typeof options.delimiter === 'string' || Utils.isRegExp(options.delimiter) ? options.delimiter : internals.delimiter;
+	    options.depth = typeof options.depth === 'number' ? options.depth : internals.depth;
+	    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : internals.arrayLimit;
+	    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : internals.parameterLimit;
+
+	    var tempObj = typeof str === 'string' ? internals.parseValues(str, options) : str;
+	    var obj = {};
+
+	    // Iterate over the keys and setup the new object
+
+	    var keys = Object.keys(tempObj);
+	    for (var i = 0, il = keys.length; i < il; ++i) {
+	        var key = keys[i];
+	        var newObj = internals.parseKeys(key, tempObj[key], options);
+	        obj = Utils.merge(obj, newObj);
+	    }
+
+	    return Utils.compact(obj);
+	};
+
+
+/***/ },
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2356,23 +2878,23 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _createStore = __webpack_require__(25);
+	var _createStore = __webpack_require__(36);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _utilsCombineReducers = __webpack_require__(27);
+	var _utilsCombineReducers = __webpack_require__(38);
 
 	var _utilsCombineReducers2 = _interopRequireDefault(_utilsCombineReducers);
 
-	var _utilsBindActionCreators = __webpack_require__(30);
+	var _utilsBindActionCreators = __webpack_require__(41);
 
 	var _utilsBindActionCreators2 = _interopRequireDefault(_utilsBindActionCreators);
 
-	var _utilsApplyMiddleware = __webpack_require__(31);
+	var _utilsApplyMiddleware = __webpack_require__(42);
 
 	var _utilsApplyMiddleware2 = _interopRequireDefault(_utilsApplyMiddleware);
 
-	var _utilsCompose = __webpack_require__(32);
+	var _utilsCompose = __webpack_require__(43);
 
 	var _utilsCompose2 = _interopRequireDefault(_utilsCompose);
 
@@ -2383,7 +2905,7 @@ var ra =
 	exports.compose = _utilsCompose2['default'];
 
 /***/ },
-/* 25 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2393,7 +2915,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _utilsIsPlainObject = __webpack_require__(26);
+	var _utilsIsPlainObject = __webpack_require__(37);
 
 	var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
 
@@ -2545,7 +3067,7 @@ var ra =
 	}
 
 /***/ },
-/* 26 */
+/* 37 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2580,7 +3102,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 27 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2590,17 +3112,17 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _createStore = __webpack_require__(25);
+	var _createStore = __webpack_require__(36);
 
-	var _utilsIsPlainObject = __webpack_require__(26);
+	var _utilsIsPlainObject = __webpack_require__(37);
 
 	var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
 
-	var _utilsMapValues = __webpack_require__(28);
+	var _utilsMapValues = __webpack_require__(39);
 
 	var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
 
-	var _utilsPick = __webpack_require__(29);
+	var _utilsPick = __webpack_require__(40);
 
 	var _utilsPick2 = _interopRequireDefault(_utilsPick);
 
@@ -2713,7 +3235,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 28 */
+/* 39 */
 /***/ function(module, exports) {
 
 	/**
@@ -2738,7 +3260,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 29 */
+/* 40 */
 /***/ function(module, exports) {
 
 	/**
@@ -2765,7 +3287,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 30 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2775,7 +3297,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _utilsMapValues = __webpack_require__(28);
+	var _utilsMapValues = __webpack_require__(39);
 
 	var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
 
@@ -2825,7 +3347,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 31 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2838,7 +3360,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _compose = __webpack_require__(32);
+	var _compose = __webpack_require__(43);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -2891,7 +3413,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 32 */
+/* 43 */
 /***/ function(module, exports) {
 
 	/**
@@ -2921,7 +3443,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 33 */
+/* 44 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2943,7 +3465,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 34 */
+/* 45 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3063,10 +3585,10 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 35 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(36);
+	var uuid = __webpack_require__(47);
 	var storage = __webpack_require__(3);
 	var actions = __webpack_require__(2);
 
@@ -3127,7 +3649,7 @@ var ra =
 
 
 /***/ },
-/* 36 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;//     uuid.js
@@ -3380,10 +3902,10 @@ var ra =
 
 
 /***/ },
-/* 37 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var css = __webpack_require__(38);
+	var css = __webpack_require__(49);
 
 	// shim layer with setTimeout fallback
 	window.requestAnimFrame = (function(){
@@ -3504,11 +4026,11 @@ var ra =
 
 
 /***/ },
-/* 38 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(39)
-	var toCamelCase = __webpack_require__(40)
+	var prefix = __webpack_require__(50)
+	var toCamelCase = __webpack_require__(51)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -3576,7 +4098,7 @@ var ra =
 
 
 /***/ },
-/* 39 */
+/* 50 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -3600,11 +4122,11 @@ var ra =
 	}
 
 /***/ },
-/* 40 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(41);
+	var toSpace = __webpack_require__(52);
 
 
 	/**
@@ -3629,11 +4151,11 @@ var ra =
 	}
 
 /***/ },
-/* 41 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(42);
+	var clean = __webpack_require__(53);
 
 
 	/**
@@ -3658,7 +4180,7 @@ var ra =
 	}
 
 /***/ },
-/* 42 */
+/* 53 */
 /***/ function(module, exports) {
 
 	
@@ -3737,7 +4259,7 @@ var ra =
 	}
 
 /***/ },
-/* 43 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var storage = __webpack_require__(3);
@@ -3759,7 +4281,7 @@ var ra =
 
 
 /***/ },
-/* 44 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendPage = __webpack_require__(2).sendPage;
@@ -3798,7 +4320,7 @@ var ra =
 
 
 /***/ },
-/* 45 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendProduct = __webpack_require__(2).sendProduct;
@@ -3816,11 +4338,11 @@ var ra =
 
 
 /***/ },
-/* 46 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(47);
-	var eventListener = __webpack_require__(48);
+	var isEmail = __webpack_require__(58);
+	var eventListener = __webpack_require__(59);
 	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
@@ -3897,7 +4419,7 @@ var ra =
 
 
 /***/ },
-/* 47 */
+/* 58 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {
@@ -3908,7 +4430,7 @@ var ra =
 
 
 /***/ },
-/* 48 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){

@@ -1,6 +1,6 @@
 var storage = require('storage');
 var createAction = require('redux-actions').createAction;
-var request = require('qwest');
+var request = require('then-request');
 
 function sendRequest(endpoint, data) {
 
@@ -8,15 +8,21 @@ function sendRequest(endpoint, data) {
     'https://www.recapture.io/beacon/' :
     'http://localhost:4000/beacon/';
 
-  return request.post(
-    baseURL + endpoint,
-    data,
-    {
-      dataType: 'json',
-      responseType: 'json',
-      headers: { 'Api-Key': data.api_key }
-    }
-  );
+  request('POST', baseURL + endpoint, {
+    json: data,
+    headers: { 'Api-Key': data.api_key }
+  });
+
+  // qwest.js syntax
+  // return request.post(
+  //   baseURL + endpoint,
+  //   data,
+  //   {
+  //     dataType: 'json',
+  //     responseType: 'json',
+  //     headers: { 'Api-Key': data.api_key }
+  //   }
+  // );
 }
 
 /**
