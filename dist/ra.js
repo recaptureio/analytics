@@ -1,4 +1,4 @@
-/*! Recapture.io analytics v1.0.0 | MIT & BSD */
+/*! Recapture.io SDK v1.0.1 | MIT & BSD */
 var ra =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -47,12 +47,12 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var state = __webpack_require__(1);
-	var customer = __webpack_require__(37)(state);
-	var collector = __webpack_require__(39)(state);
-	var init = __webpack_require__(45)(state, customer);
-	var page = __webpack_require__(46)(state);
-	var product = __webpack_require__(47)(state);
-	var email = __webpack_require__(48)(state, customer);
+	var customer = __webpack_require__(35)(state);
+	var collector = __webpack_require__(37)(state);
+	var init = __webpack_require__(43)(state, customer);
+	var page = __webpack_require__(44)(state);
+	var product = __webpack_require__(45)(state);
+	var email = __webpack_require__(46)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -3063,12 +3063,10 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 35 */,
-/* 36 */,
-/* 37 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(38);
+	var uuid = __webpack_require__(36);
 	var storage = __webpack_require__(3);
 	var actions = __webpack_require__(2);
 
@@ -3129,7 +3127,7 @@ var ra =
 
 
 /***/ },
-/* 38 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;//     uuid.js
@@ -3382,10 +3380,10 @@ var ra =
 
 
 /***/ },
-/* 39 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var css = __webpack_require__(40);
+	var css = __webpack_require__(38);
 
 	// shim layer with setTimeout fallback
 	window.requestAnimFrame = (function(){
@@ -3506,11 +3504,11 @@ var ra =
 
 
 /***/ },
-/* 40 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(41)
-	var toCamelCase = __webpack_require__(42)
+	var prefix = __webpack_require__(39)
+	var toCamelCase = __webpack_require__(40)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -3578,7 +3576,7 @@ var ra =
 
 
 /***/ },
-/* 41 */
+/* 39 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -3602,11 +3600,11 @@ var ra =
 	}
 
 /***/ },
-/* 42 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(43);
+	var toSpace = __webpack_require__(41);
 
 
 	/**
@@ -3631,11 +3629,11 @@ var ra =
 	}
 
 /***/ },
-/* 43 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(44);
+	var clean = __webpack_require__(42);
 
 
 	/**
@@ -3660,7 +3658,7 @@ var ra =
 	}
 
 /***/ },
-/* 44 */
+/* 42 */
 /***/ function(module, exports) {
 
 	
@@ -3739,7 +3737,7 @@ var ra =
 	}
 
 /***/ },
-/* 45 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var storage = __webpack_require__(3);
@@ -3761,7 +3759,7 @@ var ra =
 
 
 /***/ },
-/* 46 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendPage = __webpack_require__(2).sendPage;
@@ -3800,7 +3798,7 @@ var ra =
 
 
 /***/ },
-/* 47 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendProduct = __webpack_require__(2).sendProduct;
@@ -3818,11 +3816,11 @@ var ra =
 
 
 /***/ },
-/* 48 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(49);
-	var eventListener = __webpack_require__(50);
+	var isEmail = __webpack_require__(47);
+	var eventListener = __webpack_require__(48);
 	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
@@ -3899,7 +3897,7 @@ var ra =
 
 
 /***/ },
-/* 49 */
+/* 47 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {
@@ -3910,7 +3908,7 @@ var ra =
 
 
 /***/ },
-/* 50 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(root,factory){
