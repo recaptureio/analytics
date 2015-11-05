@@ -12,10 +12,8 @@ All method calls will point to `http://recapture.io/beacon` if using minified js
 
 ## Including the library
 ```html
-<!--[if gt IE 8]>
   <script src="path/to/ra-queue.min.js"></script>
   <script src="path/to/ra.min.js" async defer></script>
-<!--<![endif]--> 
 ```
 
 ## Methods
