@@ -10,6 +10,14 @@ Local storage and cookies keys:
 
 All method calls will point to `http://recapture.io/beacon` if using minified js, otherwise it will point to `http://localhost:4000/beacon`
 
+## Including the library
+```html
+<!--[if gt IE 8]>
+  <script src="path/to/ra-queue.min.js"></script>
+  <script src="path/to/ra.min.js" async defer></script>
+<!--<![endif]--> 
+```
+
 ## Methods
 
 *`ra('init', [apiKey|string|required)`*
