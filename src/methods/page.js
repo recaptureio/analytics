@@ -11,11 +11,11 @@ function getPageData() {
 
   return {
     url: parser.href,
-    hostname: parser.hostname || window.location.hostname, // ie fix
-    path: parser.pathname,
-    hash: parser.hash,
-    query: parser.search,
-    referrer: document.referrer,
+    //hostname: parser.hostname || window.location.hostname, // ie fix
+    //path: parser.pathname,
+    //hash: parser.hash,
+    //query: parser.search,
+    //referrer: document.referrer,
     title: document.title
   };
 }
@@ -26,7 +26,7 @@ module.exports = function(state) {
 
   return function() {
     data.customer = currentState.customer_id;
-    data.api_key = currentState.api_key;
+    data.api_key  = currentState.api_key;
 
     state.dispatch(sendPage(data));
   };

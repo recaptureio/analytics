@@ -1,21 +1,14 @@
 var storage = require('storage');
 var createAction = require('redux-actions').createAction;
-var jQuery = require('jquery');
+var request = require('request');
 
-function sendRequest(endpoint, data) {
+function sendRequest(endpoint, data, callback) {
 
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
     'http://localhost:4000/beacon/';
     
-    console.log('jquery');
-    console.log(baseURL + endpoint);
-    
-  return jQuery.ajax({
-    dataType: 'jsonp',
-    url     : baseURL + endpoint,
-    data    : data
-  });
+  request(baseURL + endpoint, data, callback);
     
 }
 
@@ -61,13 +54,12 @@ var SEND_CUSTOMER_EMAIL = 'SEND_CUSTOMER_EMAIL';
 exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
 exports.sendCustomerEmail = function(data) {
   return function(dispatch) {
-    sendRequest('cart/email', data)
-      .done(function(response) {
-        dispatch({
-          type: SEND_CUSTOMER_EMAIL,
-          payload: response
-        });
-      })
+    sendRequest('cart/email', data, function(response) {
+      dispatch({
+        type: SEND_CUSTOMER_EMAIL,
+        payload: response
+      });
+    })
   };
 }
 
@@ -78,13 +70,12 @@ var SEND_PRODUCT = 'SEND_PRODUCT';
 exports.SEND_PRODUCT = SEND_PRODUCT;
 exports.sendProduct = function(data) {
   return function(dispatch) {
-    sendRequest('product', data)
-      .done(function(response) {
-        dispatch({
-          type: SEND_PRODUCT,
-          payload: response
-        });
-      })
+    sendRequest('product', data, function(response) {
+      dispatch({
+        type: SEND_PRODUCT,
+        payload: response
+      });
+    })
   };
 };
 
@@ -95,12 +86,11 @@ var SEND_PAGE = 'SEND_PAGE';
 exports.SEND_PAGE = SEND_PAGE;
 exports.sendPage = function(data) {
   return function(dispatch) {
-    sendRequest('page', data)
-      .done(function(response) {
-        dispatch({
-          type: SEND_PAGE,
-          payload: response
-        });
-      })
+    sendRequest('page', data, function(response) {
+      dispatch({
+        type: SEND_PAGE,
+        payload: response
+      });
+    })
   };
 };
