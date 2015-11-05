@@ -62,19 +62,17 @@ module.exports = function(state) {
    * @param  {Oject} iframe The iframe DOM node
    */
   function initializeIframe(iframe) {
-    iframe.addEventListener('load', function() {
-      window.addEventListener('message', function(e) {
-        if (e.isTrusted && e.data === 'recapture::init') {
-          css(iframe, 'display', 'inherit');
+    window.addEventListener('message', function(e) {
+      if (e.isTrusted && e.data === 'recapture::init') {
+        css(iframe, 'display', 'inherit');
 
-          requestAnimFrame(function() {
-            css(iframe, 'opacity', 1);
+        requestAnimFrame(function() {
+          css(iframe, 'opacity', 1);
 
-            setupRemoveListener();
-          });
-        }
-      });
-    }, false);
+          setupRemoveListener();
+        });
+      }
+    });
   }
 
   /**
