@@ -48,7 +48,7 @@ module.exports = function(state) {
    * Sets up our message listener from the recapture iframe
    * @method setupMessageListener
    */
-  function setupMessageListener() {
+  function setupRemoveListener() {
     window.addEventListener('message', function(e) {
       if (e.isTrusted && (e.data === 'recapture::close' || e.data === 'recapture::submit')) {
         removeCollector();
@@ -63,12 +63,16 @@ module.exports = function(state) {
    */
   function initializeIframe(iframe) {
     iframe.addEventListener('load', function() {
-      css(iframe, 'display', 'inherit');
+      window.addEventListener('message', function(e) {
+        if (e.isTrusted && e.data === 'recapture::init') {
+          css(iframe, 'display', 'inherit');
 
-      requestAnimFrame(function() {
-        css(iframe, 'opacity', 1);
+          requestAnimFrame(function() {
+            css(iframe, 'opacity', 1);
 
-        setupMessageListener();
+            setupRemoveListener();
+          });
+        }
       });
     }, false);
   }
@@ -95,6 +99,7 @@ module.exports = function(state) {
       left: 0,
       border: 'none',
       opacity: '0',
+      display: 'none',
       transition: 'opacity 400ms cubic-bezier(.25,.8,.25,1)',
       zIndex: 999
     });
