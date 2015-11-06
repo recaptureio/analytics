@@ -1,17 +1,6 @@
 var css = require('dom-css');
 var utils = require('utils');
-
 var ie = utils.ie();
-
-// shim layer with setTimeout fallback
-window.requestAnimFrame = (function(){
-  return window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    function( callback ){
-      window.setTimeout(callback, 1000 / 60);
-    };
-})();
 
 module.exports = function(state) {
 
@@ -30,7 +19,7 @@ module.exports = function(state) {
 
       css(iframe, 'opacity', '0');
 
-      iframe.addEventListener(whichTransitionEvent(), function() {
+      iframe.addEventListener(transitionEvent, function() {
         iframe.parentNode.removeChild(iframe);
       }, false);
     }
@@ -47,11 +36,11 @@ module.exports = function(state) {
         case 'recapture::init':
           css(iframe, 'display', 'block');
 
-          requestAnimFrame(function() {
-            if (!ie) {
+          if (!ie) {
+            requestAnimFrame(function() {
               css(iframe, 'opacity', 1);
-            }
-          });
+            });
+          }
           break
 
         case 'recapture::close':

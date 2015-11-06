@@ -1,5 +1,4 @@
 var isEmail = require('check-email-valid');
-var eventListener = require('eventlistener');
 var actions = require('actions');
 
 var setCartId = actions.setCartId;
@@ -22,7 +21,7 @@ module.exports = function(state, customer) {
           setEmail(inputs[i].value);
         }
 
-        eventListener.add(inputs[i], 'keyup', waitForTyping);
+        inputs[i].addEventListener('keyup', waitForTyping, false);
         timers.push(0);
       }
     }
@@ -67,7 +66,7 @@ module.exports = function(state, customer) {
   function setEmail(email) {
     customer.email(email);
   }
-  
+
   return function(cartId) {
     attachListeners();
     state.dispatch(setCartId(cartId));

@@ -1,5 +1,4 @@
 var storage = require('storage');
-var createAction = require('redux-actions').createAction;
 var request = require('request');
 
 function sendRequest(endpoint, data, callback) {
@@ -17,34 +16,52 @@ function sendRequest(endpoint, data, callback) {
  */
 var SET_API_KEY = 'SET_API_KEY';
 exports.SET_API_KEY = SET_API_KEY;
-exports.setApiKey = createAction(SET_API_KEY);
+exports.setApiKey = function setApiKey(key) {
+  return {
+    type: SET_API_KEY,
+    payload: key
+  };
+};
 
 /**
  * Sets cart id of the customer
  */
 var SET_CART_ID = 'SET_CART_ID';
 exports.SET_CART_ID = SET_CART_ID;
-exports.setCartId = createAction(SET_CART_ID);
+exports.setCartId = function setCartId(id) {
+  return {
+    type: SET_CART_ID,
+    payload: id
+  };
+};
 
 /**
  * Sets customer id and puts it into storage
  */
 var SET_CUSTOMER_ID = 'SET_CUSTOMER_ID';
 exports.SET_CUSTOMER_ID = SET_CUSTOMER_ID;
-exports.setCustomerId = createAction(SET_CUSTOMER_ID, function(id) {
+exports.setCustomerId = function setCustomerId(id) {
   storage.set('ra_customer_id', id);
-  return id;
-});
+
+  return {
+    type: SET_CUSTOMER_ID,
+    payload: id
+  };
+};
 
 /**
  * Sets customer id and puts it into storage
  */
 var SET_CUSTOMER_EMAIL = 'SET_CUSTOMER_EMAIL';
 exports.SET_CUSTOMER_EMAIL = SET_CUSTOMER_EMAIL;
-exports.setCustomerEmail = createAction(SET_CUSTOMER_EMAIL, function(email) {
+exports.setCustomerEmail = function setCustomerEmail(email) {
   storage.set('ra_customer_email', email);
-  return email;
-});
+
+  return {
+    type: SET_CUSTOMER_EMAIL,
+    payload: email
+  };
+};
 
 
 /**

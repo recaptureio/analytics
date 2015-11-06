@@ -1,28 +1,44 @@
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function(){
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    function( callback ){
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
 /**
- * IE detection taken from https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+ * IE detection
+ * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
  * @method ie
- * @return {Integer} The ie version number or -1
+ * @return {Boolean} If browser is IE
  */
 exports.ie = function ie() {
   var rv = -1; // Return value assumes failure.
+  var ua = navigator.userAgent;
 
   if (navigator.appName == 'Microsoft Internet Explorer') {
-    var ua = navigator.userAgent;
     var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
     if (re.exec(ua) != null) {
       rv = parseFloat( RegExp.$1 );
     }
   } else if (navigator.appName == 'Netscape') {
-    if (navigator.appVersion.indexOf('Trident') === -1) {
-      rv = 12;
-    } else {
-      rv = 11;
+    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null) {
+      rv = parseFloat( RegExp.$1 );
     }
   }
 
   return rv > -1;
 }
 
+/**
+ * Gives us the vendor prefixed transition event name
+ * @source Modernizr
+ * @method transitionEvent
+ * @return {String} Vendor prefixed event name
+ */
 exports.transitionEvent = function transitionEvent() {
   var t;
   var el = document.createElement('fakeelement');
@@ -39,3 +55,14 @@ exports.transitionEvent = function transitionEvent() {
     }
   }
 }
+
+/**
+ * Generates a UUID for our customer
+ * @method uuid
+ * @return {String} Randomly generated UUID
+ */
+exports.uuid = function uuid() {
+  return('' + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function() {
+    return(0 | Math.random() * 16).toString(16);
+  });
+};
