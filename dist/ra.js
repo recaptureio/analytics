@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.0.1 | MIT & BSD */
+/*! Recapture.io SDK v1.1.0 | MIT & BSD */
 var ra =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
