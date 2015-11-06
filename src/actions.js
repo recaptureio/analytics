@@ -7,9 +7,9 @@ function sendRequest(endpoint, data, callback) {
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
     'http://localhost:4000/beacon/';
-    
+
   request(baseURL + endpoint, data, callback);
-    
+
 }
 
 /**

@@ -204,9 +204,9 @@ var ra =
 	  var baseURL =  false ?
 	    'https://www.recapture.io/beacon/' :
 	    'http://localhost:4000/beacon/';
-	    
+
 	  request(baseURL + endpoint, data, callback);
-	    
+
 	}
 
 	/**
@@ -1713,11 +1713,11 @@ var ra =
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = window || this,
+		var global = this,
 			pinkyswear = __webpack_require__(21),
 			jparam = __webpack_require__(24),
 			// Default response type for XDR in auto mode
@@ -1798,7 +1798,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = new Date().getTime();
+					timeout_start = Date.now();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1877,7 +1877,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(new Date().getTime()-timeout_start >= options.timeout) {
+				if(Date.now()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -2570,14 +2570,8 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
-	    var isSubscribed = true;
 
 	    return function unsubscribe() {
-	      if (!isSubscribed) {
-	        return;
-	      }
-
-	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2808,16 +2802,13 @@ var ra =
 	      throw sanityError;
 	    }
 
-	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var previousStateForKey = state[key];
-	      var nextStateForKey = reducer(previousStateForKey, action);
-	      if (typeof nextStateForKey === 'undefined') {
+	      var newState = reducer(state[key], action);
+	      if (typeof newState === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-	      return nextStateForKey;
+	      return newState;
 	    });
 
 	    if (true) {
@@ -2827,7 +2818,7 @@ var ra =
 	      }
 	    }
 
-	    return hasChanged ? finalState : state;
+	    return finalState;
 	  };
 	}
 
@@ -3505,36 +3496,21 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var css = __webpack_require__(39);
+	var utils = __webpack_require__(50);
+
+	var ie = utils.ie();
 
 	// shim layer with setTimeout fallback
 	window.requestAnimFrame = (function(){
-	  return  window.requestAnimationFrame       ||
-	          window.webkitRequestAnimationFrame ||
-	          window.mozRequestAnimationFrame    ||
-	          function( callback ){
-	            window.setTimeout(callback, 1000 / 60);
-	          };
+	  return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    function( callback ){
+	      window.setTimeout(callback, 1000 / 60);
+	    };
 	})();
 
 	module.exports = function(state) {
-
-	  /** From modernizer */
-	  function whichTransitionEvent(){
-	    var t;
-	    var el = document.createElement('fakeelement');
-	    var transitions = {
-	      'transition':'transitionend',
-	      'OTransition':'oTransitionEnd',
-	      'MozTransition':'transitionend',
-	      'WebkitTransition':'webkitTransitionEnd'
-	    }
-
-	    for(t in transitions){
-	      if( el.style[t] !== undefined ){
-	        return transitions[t];
-	      }
-	    }
-	  }
 
 	  /**
 	   * Removes collector iframe and close button from DOM
@@ -3543,23 +3519,18 @@ var ra =
 	  function removeCollector() {
 	    var iframe = document.getElementById('recapture-collector');
 
-	    css(iframe, 'opacity', '0');
+	    if (ie) {
+	      iframe.src = '';
+	      iframe.parentNode.removeChild(iframe);
+	    } else {
+	      var transitionEvent = utils.transitionEvent();
 
-	    iframe.addEventListener(whichTransitionEvent(), function() {
-	      iframe.remove();
-	    }, false);
-	  }
+	      css(iframe, 'opacity', '0');
 
-	  /**
-	   * Sets up our message listener from the recapture iframe
-	   * @method setupMessageListener
-	   */
-	  function setupRemoveListener() {
-	    window.addEventListener('message', function(e) {
-	      if (e.isTrusted && (e.data === 'recapture::close' || e.data === 'recapture::submit')) {
-	        removeCollector();
-	      }
-	    }, false);
+	      iframe.addEventListener(whichTransitionEvent(), function() {
+	        iframe.parentNode.removeChild(iframe);
+	      }, false);
+	    }
 	  }
 
 	  /**
@@ -3569,14 +3540,24 @@ var ra =
 	   */
 	  function initializeIframe(iframe) {
 	    window.addEventListener('message', function(e) {
-	      if (e.isTrusted && e.data === 'recapture::init') {
-	        css(iframe, 'display', 'inherit');
+	      switch (e.data) {
+	        case 'recapture::init':
+	          css(iframe, 'display', 'block');
 
-	        requestAnimFrame(function() {
-	          css(iframe, 'opacity', 1);
+	          requestAnimFrame(function() {
+	            if (!ie) {
+	              css(iframe, 'opacity', 1);
+	            }
+	          });
+	          break
 
-	          setupRemoveListener();
-	        });
+	        case 'recapture::close':
+	        case 'recapture::submit':
+	          removeCollector();
+	          break;
+
+	        default:
+	          return;
 	      }
 	    });
 	  }
@@ -3595,18 +3576,23 @@ var ra =
 	    iframe.width = '100%';
 	    iframe.height = '100%';
 
-	    css(iframe, {
-	      width: '100%',
-	      height: '100%',
+	    var styles = {
 	      position: 'fixed',
 	      top: 0,
 	      left: 0,
+	      bottom: 0,
+	      right: 0,
 	      border: 'none',
-	      opacity: '0',
 	      display: 'none',
-	      transition: 'opacity 400ms cubic-bezier(.25,.8,.25,1)',
 	      zIndex: 999
-	    });
+	    };
+
+	    if (!ie) {
+	      styles.opacity = '0';
+	      styles.transition = 'opacity 400ms cubic-bezier(.25,.8,.25,1)';
+	    }
+
+	    css(iframe, styles);
 
 	    document.body.appendChild(iframe);
 
@@ -4059,6 +4045,53 @@ var ra =
 			remove: wrap('removeEventListener', 'detachEvent')
 		};
 	}));
+
+/***/ },
+/* 50 */
+/***/ function(module, exports) {
+
+	/**
+	 * IE detection taken from https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+	 * @method ie
+	 * @return {Integer} The ie version number or -1
+	 */
+	exports.ie = function ie() {
+	  var rv = -1; // Return value assumes failure.
+
+	  if (navigator.appName == 'Microsoft Internet Explorer') {
+	    var ua = navigator.userAgent;
+	    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+	    if (re.exec(ua) != null) {
+	      rv = parseFloat( RegExp.$1 );
+	    }
+	  } else if (navigator.appName == 'Netscape') {
+	    if (navigator.appVersion.indexOf('Trident') === -1) {
+	      rv = 12;
+	    } else {
+	      rv = 11;
+	    }
+	  }
+
+	  return rv > -1;
+	}
+
+	exports.transitionEvent = function transitionEvent() {
+	  var t;
+	  var el = document.createElement('fakeelement');
+	  var transitions = {
+	    'transition':'transitionend',
+	    'OTransition':'oTransitionEnd',
+	    'MozTransition':'transitionend',
+	    'WebkitTransition':'webkitTransitionEnd'
+	  }
+
+	  for(t in transitions){
+	    if( el.style[t] !== undefined ){
+	      return transitions[t];
+	    }
+	  }
+	}
+
 
 /***/ }
 /******/ ]);

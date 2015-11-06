@@ -1,21 +1,24 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>Recapture Analytics test page</title>
     <meta charset="utf-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv=”X-UA-Compatible” content=”IE=edge,chrome=1″>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-    <input type="email">
+    <input type="email" placeholder="email">
+
+    <p>Lorem ipsum dolor sit amet, ne gloriatur constituam qui, quo dicta nonumy in, quo nusquam sensibus in. Mel an erant persequeris conclusionemque, nec ei minim quaestio. Cibo commune ocurreret et eum, at assum consul appetere eam. An nam illum utamur cotidieque.</p>
     <script src="../dist/ra-queue.min.js"></script>
     <script src="../dist/ra.js" async defer></script>
     <script>
       ra('init', ['mqupslok']);
       // ra('email', ['123']);
-      // ra('page');
-      ra('product', [{
-        sku: '123'
-      }]);
+      ra('page');
+      // ra('product', [{
+      //   sku: '123'
+      // }]);
     </script>
   </body>
 </html>

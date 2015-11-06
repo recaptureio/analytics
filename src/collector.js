@@ -1,34 +1,19 @@
 var css = require('dom-css');
+var utils = require('utils');
+
+var ie = utils.ie();
 
 // shim layer with setTimeout fallback
 window.requestAnimFrame = (function(){
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          function( callback ){
-            window.setTimeout(callback, 1000 / 60);
-          };
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    function( callback ){
+      window.setTimeout(callback, 1000 / 60);
+    };
 })();
 
 module.exports = function(state) {
-
-  /** From modernizer */
-  function whichTransitionEvent(){
-    var t;
-    var el = document.createElement('fakeelement');
-    var transitions = {
-      'transition':'transitionend',
-      'OTransition':'oTransitionEnd',
-      'MozTransition':'transitionend',
-      'WebkitTransition':'webkitTransitionEnd'
-    }
-
-    for(t in transitions){
-      if( el.style[t] !== undefined ){
-        return transitions[t];
-      }
-    }
-  }
 
   /**
    * Removes collector iframe and close button from DOM
@@ -37,23 +22,18 @@ module.exports = function(state) {
   function removeCollector() {
     var iframe = document.getElementById('recapture-collector');
 
-    css(iframe, 'opacity', '0');
+    if (ie) {
+      iframe.src = '';
+      iframe.parentNode.removeChild(iframe);
+    } else {
+      var transitionEvent = utils.transitionEvent();
 
-    iframe.addEventListener(whichTransitionEvent(), function() {
-      iframe.remove();
-    }, false);
-  }
+      css(iframe, 'opacity', '0');
 
-  /**
-   * Sets up our message listener from the recapture iframe
-   * @method setupMessageListener
-   */
-  function setupRemoveListener() {
-    window.addEventListener('message', function(e) {
-      if (e.isTrusted && (e.data === 'recapture::close' || e.data === 'recapture::submit')) {
-        removeCollector();
-      }
-    }, false);
+      iframe.addEventListener(whichTransitionEvent(), function() {
+        iframe.parentNode.removeChild(iframe);
+      }, false);
+    }
   }
 
   /**
@@ -63,14 +43,24 @@ module.exports = function(state) {
    */
   function initializeIframe(iframe) {
     window.addEventListener('message', function(e) {
-      if (e.isTrusted && e.data === 'recapture::init') {
-        css(iframe, 'display', 'inherit');
+      switch (e.data) {
+        case 'recapture::init':
+          css(iframe, 'display', 'block');
 
-        requestAnimFrame(function() {
-          css(iframe, 'opacity', 1);
+          requestAnimFrame(function() {
+            if (!ie) {
+              css(iframe, 'opacity', 1);
+            }
+          });
+          break
 
-          setupRemoveListener();
-        });
+        case 'recapture::close':
+        case 'recapture::submit':
+          removeCollector();
+          break;
+
+        default:
+          return;
       }
     });
   }
@@ -89,18 +79,23 @@ module.exports = function(state) {
     iframe.width = '100%';
     iframe.height = '100%';
 
-    css(iframe, {
-      width: '100%',
-      height: '100%',
+    var styles = {
       position: 'fixed',
       top: 0,
       left: 0,
+      bottom: 0,
+      right: 0,
       border: 'none',
-      opacity: '0',
       display: 'none',
-      transition: 'opacity 400ms cubic-bezier(.25,.8,.25,1)',
       zIndex: 999
-    });
+    };
+
+    if (!ie) {
+      styles.opacity = '0';
+      styles.transition = 'opacity 400ms cubic-bezier(.25,.8,.25,1)';
+    }
+
+    css(iframe, styles);
 
     document.body.appendChild(iframe);
 
