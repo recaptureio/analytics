@@ -263,7 +263,7 @@ var ra =
 	exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
 	exports.sendCustomerEmail = function(data) {
 	  return function(dispatch) {
-	    sendRequest('cart/email', data, function(response) {
+	    sendRequest('email', data, function(response) {
 	      dispatch({
 	        type: SEND_CUSTOMER_EMAIL,
 	        payload: response
