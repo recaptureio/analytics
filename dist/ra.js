@@ -346,6 +346,16 @@ var ra =
 	 * @return {Boolean} Whether an item was found or not
 	 */
 	function has(key) {
+	  // if present in localstorage but not cookie, set in cookie
+	  if (store.has(key) && !cookies.get(key)) {
+	    cookies.set(key, store.get(key));
+	  }
+
+	  // if present in cookie but not localstorage, set in localstorage
+	  if (cookies.get(key) && !store.has(key)) {
+	    store.set(key, cookies.get(key));
+	  }
+
 	  return store.has(key) && cookies.get(key);
 	}
 
