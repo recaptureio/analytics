@@ -57,12 +57,12 @@ ra('product', [{
 
 ---
 
-*`ra('email', [cartID|string|required])`*
+*`ra('email')`*
 
 Watches the page for any email address being input into a form and associates it to the internal tracked customer.
 
 e.g.
 
 ```javascript
-ra('email', ['abc123']);
+ra('email');
 ```

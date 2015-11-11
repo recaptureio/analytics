@@ -67,8 +67,7 @@ module.exports = function(state, customer) {
     customer.email(email);
   }
 
-  return function(cartId) {
+  return function() {
     attachListeners();
-    state.dispatch(setCartId(cartId));
   }
 };

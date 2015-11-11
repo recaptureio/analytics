@@ -29,7 +29,6 @@ module.exports = function(state) {
       email: email,
       customer: currentState.customer_id,
       api_key: currentState.api_key,
-      cart_id: currentState.cart_id
     };
 
     state.dispatch(setCustomerEmail(email));

@@ -128,7 +128,6 @@ var ra =
 	 */
 	var defaultState = {
 	  api_key: null,
-	  cart_id: null,
 	  customer_id: null,
 	  customer_email: null,
 	  collector: null
@@ -145,10 +144,6 @@ var ra =
 	  switch (action.type) {
 	    case SET_API_KEY:
 	      state.api_key = action.payload;
-	      return state;
-
-	    case SET_CART_ID:
-	      state.cart_id = action.payload;
 	      return state;
 
 	    case SET_CUSTOMER_ID:
@@ -2394,7 +2389,6 @@ var ra =
 	      email: email,
 	      customer: currentState.customer_id,
 	      api_key: currentState.api_key,
-	      cart_id: currentState.cart_id
 	    };
 
 	    state.dispatch(setCustomerEmail(email));
@@ -2993,9 +2987,8 @@ var ra =
 	    customer.email(email);
 	  }
 
-	  return function(cartId) {
+	  return function() {
 	    attachListeners();
-	    state.dispatch(setCartId(cartId));
 	  }
 	};
 

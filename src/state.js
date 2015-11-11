@@ -31,7 +31,6 @@ var SEND_PRODUCT = actions.SEND_PRODUCT;
  */
 var defaultState = {
   api_key: null,
-  cart_id: null,
   customer_id: null,
   customer_email: null,
   collector: null
@@ -48,10 +47,6 @@ function reducer(state, action) {
   switch (action.type) {
     case SET_API_KEY:
       state.api_key = action.payload;
-      return state;
-
-    case SET_CART_ID:
-      state.cart_id = action.payload;
       return state;
 
     case SET_CUSTOMER_ID:
