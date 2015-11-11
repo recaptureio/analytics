@@ -340,13 +340,13 @@ var ra =
 	}
 
 	/**
-	 * Check to see if a item exists
+	 * Check to see if a item exists, checks both localstorage and cookies
 	 * @method has
 	 * @param  {String} key The items key
 	 * @return {Boolean} Whether an item was found or not
 	 */
 	function has(key) {
-	  return store.has(key);
+	  return store.has(key) && cookies.get(key);
 	}
 
 	/**
