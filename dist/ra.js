@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.1.2 | MIT & BSD */
+/*! Recapture.io SDK v1.1.3 | MIT & BSD */
 var ra =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -121,6 +121,7 @@ var ra =
 	var SET_CUSTOMER_EMAIL = actions.SET_CUSTOMER_EMAIL;
 	var SEND_PAGE = actions.SEND_PAGE;
 	var SEND_PRODUCT = actions.SEND_PRODUCT;
+	var RESET_COLLECTOR = actions.RESET_COLLECTOR;
 
 	/**
 	 * Our default application state
@@ -160,6 +161,7 @@ var ra =
 	          state.collector = action.payload.data.collector;
 	        }
 	      }
+
 	      return state;
 
 	    case SEND_PRODUCT:
@@ -168,6 +170,11 @@ var ra =
 	          state.collector = action.payload.data.collector;
 	        }
 	      }
+
+	      return state;
+
+	    case RESET_COLLECTOR:
+	      state.collector = null;
 	      return state;
 
 	    default:
@@ -302,6 +309,18 @@ var ra =
 	      });
 	    })
 	  };
+	};
+
+	/**
+	 * To make sure subsequent api calls do not show collector again
+	 */
+	var RESET_COLLECTOR = 'RESET_COLLECTOR';
+	exports.RESET_COLLECTOR = RESET_COLLECTOR;
+	exports.resetCollector = function() {
+	  return {
+	    type: RESET_COLLECTOR,
+	    payload: {}
+	  }
 	};
 
 
@@ -2495,8 +2514,10 @@ var ra =
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var resetCollector = __webpack_require__(2).resetCollector;
 	var css = __webpack_require__(27);
 	var utils = __webpack_require__(25);
+
 	var ie = utils.ie();
 
 	module.exports = function(state) {
@@ -2596,6 +2617,7 @@ var ra =
 
 	    if (currentState.collector) {
 	      initializeIframe(injectIframe(currentState.collector));
+	      state.dispatch(resetCollector());
 	    }
 	  });
 

@@ -1,5 +1,7 @@
+var resetCollector = require('actions').resetCollector;
 var css = require('dom-css');
 var utils = require('utils');
+
 var ie = utils.ie();
 
 module.exports = function(state) {
@@ -99,6 +101,7 @@ module.exports = function(state) {
 
     if (currentState.collector) {
       initializeIframe(injectIframe(currentState.collector));
+      state.dispatch(resetCollector());
     }
   });
 

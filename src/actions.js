@@ -111,3 +111,15 @@ exports.sendPage = function(data) {
     })
   };
 };
+
+/**
+ * To make sure subsequent api calls do not show collector again
+ */
+var RESET_COLLECTOR = 'RESET_COLLECTOR';
+exports.RESET_COLLECTOR = RESET_COLLECTOR;
+exports.resetCollector = function() {
+  return {
+    type: RESET_COLLECTOR,
+    payload: {}
+  }
+};

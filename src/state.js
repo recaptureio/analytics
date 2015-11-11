@@ -24,6 +24,7 @@ var SET_CUSTOMER_ID = actions.SET_CUSTOMER_ID;
 var SET_CUSTOMER_EMAIL = actions.SET_CUSTOMER_EMAIL;
 var SEND_PAGE = actions.SEND_PAGE;
 var SEND_PRODUCT = actions.SEND_PRODUCT;
+var RESET_COLLECTOR = actions.RESET_COLLECTOR;
 
 /**
  * Our default application state
@@ -63,6 +64,7 @@ function reducer(state, action) {
           state.collector = action.payload.data.collector;
         }
       }
+
       return state;
 
     case SEND_PRODUCT:
@@ -71,6 +73,11 @@ function reducer(state, action) {
           state.collector = action.payload.data.collector;
         }
       }
+
+      return state;
+
+    case RESET_COLLECTOR:
+      state.collector = null;
       return state;
 
     default:
