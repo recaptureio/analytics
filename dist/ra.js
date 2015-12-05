@@ -311,6 +311,24 @@ var ra =
 	  };
 	};
 
+
+	/**
+	 * Send collector close data to recapture
+	 */
+	var SEND_COLLECTOR_CLOSE = 'SEND_COLLECTOR_CLOSE';
+	exports.SEND_COLLECTOR_CLOSE = SEND_COLLECTOR_CLOSE;
+	exports.sendCollectorClose = function(url) {
+	  return function(dispatch) {
+	    request(url, {}, function(response) {
+	      dispatch({
+	        type: SEND_COLLECTOR_CLOSE,
+	        payload: response
+	      });
+	    })
+	  };
+	};
+
+
 	/**
 	 * To make sure subsequent api calls do not show collector again
 	 */
@@ -912,11 +930,11 @@ var ra =
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = this,
+		var global = window || this,
 			pinkyswear = __webpack_require__(9),
 			jparam = __webpack_require__(12),
 			// Default response type for XDR in auto mode
@@ -997,7 +1015,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = Date.now();
+					timeout_start = new Date().getTime();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1076,7 +1094,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(Date.now()-timeout_start >= options.timeout) {
+				if(new Date().getTime()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -1769,8 +1787,14 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
+	    var isSubscribed = true;
 
 	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+
+	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2001,13 +2025,16 @@ var ra =
 	      throw sanityError;
 	    }
 
+	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var newState = reducer(state[key], action);
-	      if (typeof newState === 'undefined') {
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      return newState;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	      return nextStateForKey;
 	    });
 
 	    if (true) {
@@ -2017,7 +2044,7 @@ var ra =
 	      }
 	    }
 
-	    return finalState;
+	    return hasChanged ? finalState : state;
 	  };
 	}
 
@@ -2515,6 +2542,7 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var resetCollector = __webpack_require__(2).resetCollector;
+	var sendCollectorClose = __webpack_require__(2).sendCollectorClose;
 	var css = __webpack_require__(27);
 	var utils = __webpack_require__(25);
 
@@ -2529,6 +2557,8 @@ var ra =
 	  function removeCollector() {
 	    var iframe = document.getElementById('recapture-collector');
 
+	    var url = iframe.src + '/close';
+
 	    if (ie) {
 	      iframe.src = '';
 	      iframe.parentNode.removeChild(iframe);
@@ -2541,6 +2571,9 @@ var ra =
 	        iframe.parentNode.removeChild(iframe);
 	      }, false);
 	    }
+
+	    state.dispatch(sendCollectorClose(url));
+
 	  }
 
 	  /**

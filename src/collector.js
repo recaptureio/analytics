@@ -1,4 +1,5 @@
 var resetCollector = require('actions').resetCollector;
+var sendCollectorClose = require('actions').sendCollectorClose;
 var css = require('dom-css');
 var utils = require('utils');
 
@@ -13,6 +14,8 @@ module.exports = function(state) {
   function removeCollector() {
     var iframe = document.getElementById('recapture-collector');
 
+    var url = iframe.src + '/close';
+
     if (ie) {
       iframe.src = '';
       iframe.parentNode.removeChild(iframe);
@@ -25,6 +28,9 @@ module.exports = function(state) {
         iframe.parentNode.removeChild(iframe);
       }, false);
     }
+
+    state.dispatch(sendCollectorClose(url));
+
   }
 
   /**

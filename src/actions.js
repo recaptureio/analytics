@@ -112,6 +112,24 @@ exports.sendPage = function(data) {
   };
 };
 
+
+/**
+ * Send collector close data to recapture
+ */
+var SEND_COLLECTOR_CLOSE = 'SEND_COLLECTOR_CLOSE';
+exports.SEND_COLLECTOR_CLOSE = SEND_COLLECTOR_CLOSE;
+exports.sendCollectorClose = function(url) {
+  return function(dispatch) {
+    request(url, {}, function(response) {
+      dispatch({
+        type: SEND_COLLECTOR_CLOSE,
+        payload: response
+      });
+    })
+  };
+};
+
+
 /**
  * To make sure subsequent api calls do not show collector again
  */
