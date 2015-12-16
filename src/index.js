@@ -1,3 +1,5 @@
+require('shims');
+
 var state = require('state');
 var ieVersion = require('utils').ieVersion();
 var customer = require('customer')(state);
@@ -18,7 +20,7 @@ var queue = root[libName].q || [];
  */
 function create() {
 
-  if (ieVersion && ieVersion == 8) {
+  if (ieVersion && ieVersion < 9) {
     console.log('Recapture.io detected that you are using an outdated browser.')
     return;
   }
