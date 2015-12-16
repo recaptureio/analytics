@@ -318,6 +318,7 @@ var ra =
 	var SEND_COLLECTOR_CLOSE = 'SEND_COLLECTOR_CLOSE';
 	exports.SEND_COLLECTOR_CLOSE = SEND_COLLECTOR_CLOSE;
 	exports.sendCollectorClose = function(url) {
+	  if (!url) return;
 	  return function(dispatch) {
 	    request(url, {}, function(response) {
 	      dispatch({
@@ -821,7 +822,7 @@ var ra =
 	    data = data || {};
 	    method = method || '';
 	    callback = callback || function(){};
-	    
+
 	    //Gets all the keys that belong
 	    //to an object
 	    var getKeys = function(obj){
@@ -830,7 +831,7 @@ var ra =
 	        if (obj.hasOwnProperty(key)) {
 	          keys.push(key);
 	        }
-	        
+
 	      }
 	      return keys;
 	    }
@@ -843,7 +844,7 @@ var ra =
 	      var keys = getKeys(data);
 	      for(var i = 0; i < keys.length; i++){
 	        queryString += encodeURIComponent(keys[i]) + '=' + encodeURIComponent(data[keys[i]])
-	        if(i != keys.length - 1){ 
+	        if(i != keys.length - 1){
 	          queryString += '&';
 	        }
 	      }
@@ -860,14 +861,14 @@ var ra =
 	      callback = method;
 	      method = 'callback';
 	    }
-	  
+
 	    //Check to see if we have Date.now available, if not shim it for older browsers
 	    if(!Date.now){
 	      Date.now = function() { return new Date().getTime(); };
 	    }
 
 	    //Use timestamp + a random factor to account for a lot of requests in a short time
-	    //e.g. jsonp1394571775161 
+	    //e.g. jsonp1394571775161
 	    var timestamp = Date.now();
 	    var generatedFunction = 'jsonp'+Math.round(timestamp+Math.random()*1000001)
 
@@ -875,7 +876,7 @@ var ra =
 	    //First, call the function the user defined in the callback param [callback(json)]
 	    //Then delete the generated function from the window [delete window[generatedFunction]]
 	    window[generatedFunction] = function(json){
-	      
+
 	      callback(json);
 
 	      // IE8 throws an exception when you try to delete a property on window
@@ -894,35 +895,35 @@ var ra =
 	    //example2: url = http://url.com?example=param THEN http://url.com?example=param&callback=X
 	    if(url.indexOf('?') === -1){ url = url+'?'; }
 	    else{ url = url+'&'; }
-	  
+
 	    //This generates the <script> tag
 	    var jsonpScript = document.createElement('script');
 	    jsonpScript.setAttribute("src", url+method+'='+generatedFunction);
 	    document.getElementsByTagName("head")[0].appendChild(jsonpScript)
 	  }
 	  window.JSONP = JSONP;
-	  
+
 	  var request = function(url, data, callback){
-	    
+
 	    //if this god-awful communication library is present (<=IE9), we fallback to jsonp
 	    if (window.XDomainRequest){
-	      
+
 	      JSONP(url, data, callback);
-	      
+
 	      //otherwise we use qwest, and look to the future
 	    } else {
-	      
+
 	      qwest.post(url, data)
 	        .then(function(xhr, response){
 	          callback(response);
 	        })
-	        .catch(function(xhr, response, e){
+	        ['catch'](function(xhr, response, e){
 	          //what should we do here?
 	          console.log('failed request');
 	        })
 	    }
 	  }
-	  
+
 	  module.exports = JSONP;
 	})(window);
 
@@ -2554,7 +2555,7 @@ var ra =
 	   * Removes collector iframe and close button from DOM
 	   * @method removeCollector
 	   */
-	  function removeCollector() {
+	  function removeCollector(logClose) {
 	    var iframe = document.getElementById('recapture-collector');
 
 	    var url = iframe.src + '/close';
@@ -2572,7 +2573,11 @@ var ra =
 	      }, false);
 	    }
 
+	    if (logClose){
+
 	    state.dispatch(sendCollectorClose(url));
+
+	    }
 
 	  }
 
@@ -2592,9 +2597,12 @@ var ra =
 	              css(iframe, 'opacity', 1);
 	            });
 	          }
-	          break
+	          break;
 
 	        case 'recapture::close':
+	          removeCollector(true);
+	          break;
+
 	        case 'recapture::submit':
 	          removeCollector();
 	          break;

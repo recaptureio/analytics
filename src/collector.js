@@ -11,7 +11,7 @@ module.exports = function(state) {
    * Removes collector iframe and close button from DOM
    * @method removeCollector
    */
-  function removeCollector() {
+  function removeCollector(logClose) {
     var iframe = document.getElementById('recapture-collector');
 
     var url = iframe.src + '/close';
@@ -29,7 +29,11 @@ module.exports = function(state) {
       }, false);
     }
 
+    if (logClose){
+
     state.dispatch(sendCollectorClose(url));
+
+    }
 
   }
 
@@ -49,9 +53,12 @@ module.exports = function(state) {
               css(iframe, 'opacity', 1);
             });
           }
-          break
+          break;
 
         case 'recapture::close':
+          removeCollector(true);
+          break;
+
         case 'recapture::submit':
           removeCollector();
           break;

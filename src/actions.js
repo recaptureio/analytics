@@ -119,6 +119,7 @@ exports.sendPage = function(data) {
 var SEND_COLLECTOR_CLOSE = 'SEND_COLLECTOR_CLOSE';
 exports.SEND_COLLECTOR_CLOSE = SEND_COLLECTOR_CLOSE;
 exports.sendCollectorClose = function(url) {
+  if (!url) return;
   return function(dispatch) {
     request(url, {}, function(response) {
       dispatch({
