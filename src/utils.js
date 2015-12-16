@@ -9,28 +9,37 @@ window.requestAnimFrame = (function(){
 })();
 
 /**
+ * Tries to return the exact IE version number to us
+ * @method ieVersion
+ * @return {Integer} The IE version number or -1;
+ */
+exports.ieVersion = function ieVersion() {
+  var version = -1; // Return value assumes failure.
+  var ua = navigator.userAgent;
+
+  if (navigator.appName == 'Microsoft Internet Explorer') {
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null) {
+      version = parseFloat( RegExp.$1 );
+    }
+  } else if (navigator.appName == 'Netscape') {
+    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null) {
+      version = parseFloat( RegExp.$1 );
+    }
+  }
+
+  return version;
+}
+
+/**
  * IE detection
  * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
  * @method ie
  * @return {Boolean} If browser is IE
  */
 exports.ie = function ie() {
-  var rv = -1; // Return value assumes failure.
-  var ua = navigator.userAgent;
-
-  if (navigator.appName == 'Microsoft Internet Explorer') {
-    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-    if (re.exec(ua) != null) {
-      rv = parseFloat( RegExp.$1 );
-    }
-  } else if (navigator.appName == 'Netscape') {
-    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-    if (re.exec(ua) != null) {
-      rv = parseFloat( RegExp.$1 );
-    }
-  }
-
-  return rv > -1;
+  return ieVersion() > -1;
 }
 
 /**

@@ -47,7 +47,8 @@ var ra =
 /***/ function(module, exports, __webpack_require__) {
 
 	var state = __webpack_require__(1);
-	var customer = __webpack_require__(24)(state);
+	var ieVersion = __webpack_require__(24).ieVersion();
+	var customer = __webpack_require__(25)(state);
 	var collector = __webpack_require__(26)(state);
 	var init = __webpack_require__(32)(state, customer);
 	var page = __webpack_require__(33)(state);
@@ -64,6 +65,11 @@ var ra =
 	 * @return {Object} Newly constructed ra object
 	 */
 	function create() {
+
+	  if (ieVersion && ieVersion == 8) {
+	    console.log('Recapture.io detected that you are using an outdated browser.')
+	    return;
+	  }
 
 	  var obj = Object.create({
 	    init: init,
@@ -931,11 +937,11 @@ var ra =
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = window || this,
+		var global = this,
 			pinkyswear = __webpack_require__(9),
 			jparam = __webpack_require__(12),
 			// Default response type for XDR in auto mode
@@ -1016,7 +1022,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = new Date().getTime();
+					timeout_start = Date.now();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1095,7 +1101,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(new Date().getTime()-timeout_start >= options.timeout) {
+				if(Date.now()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -1788,14 +1794,8 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
-	    var isSubscribed = true;
 
 	    return function unsubscribe() {
-	      if (!isSubscribed) {
-	        return;
-	      }
-
-	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2026,16 +2026,13 @@ var ra =
 	      throw sanityError;
 	    }
 
-	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var previousStateForKey = state[key];
-	      var nextStateForKey = reducer(previousStateForKey, action);
-	      if (typeof nextStateForKey === 'undefined') {
+	      var newState = reducer(state[key], action);
+	      if (typeof newState === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-	      return nextStateForKey;
+	      return newState;
 	    });
 
 	    if (true) {
@@ -2045,7 +2042,7 @@ var ra =
 	      }
 	    }
 
-	    return hasChanged ? finalState : state;
+	    return finalState;
 	  };
 	}
 
@@ -2403,9 +2400,92 @@ var ra =
 
 /***/ },
 /* 24 */
+/***/ function(module, exports) {
+
+	// shim layer with setTimeout fallback
+	window.requestAnimFrame = (function(){
+	  return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    function( callback ){
+	      window.setTimeout(callback, 1000 / 60);
+	    };
+	})();
+
+	/**
+	 * Tries to return the exact IE version number to us
+	 * @method ieVersion
+	 * @return {Integer} The IE version number or -1;
+	 */
+	exports.ieVersion = function ieVersion() {
+	  var version = -1; // Return value assumes failure.
+	  var ua = navigator.userAgent;
+
+	  if (navigator.appName == 'Microsoft Internet Explorer') {
+	    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+	    if (re.exec(ua) != null) {
+	      version = parseFloat( RegExp.$1 );
+	    }
+	  } else if (navigator.appName == 'Netscape') {
+	    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+	    if (re.exec(ua) != null) {
+	      version = parseFloat( RegExp.$1 );
+	    }
+	  }
+
+	  return version;
+	}
+
+	/**
+	 * IE detection
+	 * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+	 * @method ie
+	 * @return {Boolean} If browser is IE
+	 */
+	exports.ie = function ie() {
+	  return ieVersion() > -1;
+	}
+
+	/**
+	 * Gives us the vendor prefixed transition event name
+	 * @source Modernizr
+	 * @method transitionEvent
+	 * @return {String} Vendor prefixed event name
+	 */
+	exports.transitionEvent = function transitionEvent() {
+	  var t;
+	  var el = document.createElement('fakeelement');
+	  var transitions = {
+	    'transition':'transitionend',
+	    'OTransition':'oTransitionEnd',
+	    'MozTransition':'transitionend',
+	    'WebkitTransition':'webkitTransitionEnd'
+	  }
+
+	  for(t in transitions){
+	    if( el.style[t] !== undefined ){
+	      return transitions[t];
+	    }
+	  }
+	}
+
+	/**
+	 * Generates a UUID for our customer
+	 * @method uuid
+	 * @return {String} Randomly generated UUID
+	 */
+	exports.uuid = function uuid() {
+	  return('' + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function() {
+	    return(0 | Math.random() * 16).toString(16);
+	  });
+	};
+
+
+/***/ },
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(25).uuid;
+	var uuid = __webpack_require__(24).uuid;
 	var storage = __webpack_require__(3);
 	var actions = __webpack_require__(2);
 
@@ -2465,87 +2545,13 @@ var ra =
 
 
 /***/ },
-/* 25 */
-/***/ function(module, exports) {
-
-	// shim layer with setTimeout fallback
-	window.requestAnimFrame = (function(){
-	  return window.requestAnimationFrame ||
-	    window.webkitRequestAnimationFrame ||
-	    window.mozRequestAnimationFrame ||
-	    function( callback ){
-	      window.setTimeout(callback, 1000 / 60);
-	    };
-	})();
-
-	/**
-	 * IE detection
-	 * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
-	 * @method ie
-	 * @return {Boolean} If browser is IE
-	 */
-	exports.ie = function ie() {
-	  var rv = -1; // Return value assumes failure.
-	  var ua = navigator.userAgent;
-
-	  if (navigator.appName == 'Microsoft Internet Explorer') {
-	    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-	    if (re.exec(ua) != null) {
-	      rv = parseFloat( RegExp.$1 );
-	    }
-	  } else if (navigator.appName == 'Netscape') {
-	    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-	    if (re.exec(ua) != null) {
-	      rv = parseFloat( RegExp.$1 );
-	    }
-	  }
-
-	  return rv > -1;
-	}
-
-	/**
-	 * Gives us the vendor prefixed transition event name
-	 * @source Modernizr
-	 * @method transitionEvent
-	 * @return {String} Vendor prefixed event name
-	 */
-	exports.transitionEvent = function transitionEvent() {
-	  var t;
-	  var el = document.createElement('fakeelement');
-	  var transitions = {
-	    'transition':'transitionend',
-	    'OTransition':'oTransitionEnd',
-	    'MozTransition':'transitionend',
-	    'WebkitTransition':'webkitTransitionEnd'
-	  }
-
-	  for(t in transitions){
-	    if( el.style[t] !== undefined ){
-	      return transitions[t];
-	    }
-	  }
-	}
-
-	/**
-	 * Generates a UUID for our customer
-	 * @method uuid
-	 * @return {String} Randomly generated UUID
-	 */
-	exports.uuid = function uuid() {
-	  return('' + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function() {
-	    return(0 | Math.random() * 16).toString(16);
-	  });
-	};
-
-
-/***/ },
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var resetCollector = __webpack_require__(2).resetCollector;
 	var sendCollectorClose = __webpack_require__(2).sendCollectorClose;
 	var css = __webpack_require__(27);
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	var ie = utils.ie();
 
