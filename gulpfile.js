@@ -4,11 +4,18 @@ var rename = require('gulp-rename');
 
 var uglifyConfig = require('./uglify');
 
-gulp.task('queue', function() {
+gulp.task('queue-dev', function() {
+  gulp.src('./src/loader-dev.js')
+    .pipe(rename('ra-queue.js'))
+    .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('queue-production', function() {
   gulp.src('./src/loader.js')
     .pipe(uglify(uglifyConfig))
     .pipe(rename('ra-queue.min.js'))
-    .pipe(gulp.dest('./dist/'))
+    .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('default', ['queue']);
+gulp.watch('./src/loader.js', ['queue-dev', 'queue-production']);
+gulp.task('default', ['queue-dev', 'queue-production']);

@@ -106,7 +106,7 @@ var qwest = require('qwest');
     //This generates the <script> tag
     var jsonpScript = document.createElement('script');
     jsonpScript.setAttribute("src", url+method+'='+generatedFunction);
-    document.getElementsByTagName("head")[0].appendChild(jsonpScript)
+    document.getElementsByTagName("head")[0].appendChild(jsonpScript);
   }
   window.JSONP = JSONP;
 
@@ -114,12 +114,10 @@ var qwest = require('qwest');
 
     //if this god-awful communication library is present (<=IE9), we fallback to jsonp
     if (window.XDomainRequest){
-
       JSONP(url, data, callback);
 
       //otherwise we use qwest, and look to the future
     } else {
-
       qwest.post(url, data)
         .then(function(xhr, response){
           callback(response);

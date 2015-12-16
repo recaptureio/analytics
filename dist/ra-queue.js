@@ -18,8 +18,7 @@ window.ra.q = [];
     script.type = 'text/javascript';
     script.async = true;
 
-    //append a timestamp that changes every 10 minutes
-    script.src = '//cdn.recapture.io/sdk/v1/ra.min.js?v=' + Math.round(Date.now() / 1000 / (60 * 10));
+    script.src = '//local.dev:81/recapture-analytics/dist/ra.js';
 
     doc.body.appendChild(script);
   }

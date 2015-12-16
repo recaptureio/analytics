@@ -27,7 +27,7 @@ module.exports = function(state) {
   return function() {
     data.customer = currentState.customer_id;
     data.api_key = currentState.api_key;
-
+    
     state.dispatch(sendPage(data));
   };
 };

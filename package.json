@@ -5,9 +5,9 @@
   "main": "dist/ra.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
+    "dev": "./node_modules/.bin/webpack --progress --colors --watch&&gulp",
     "build": "NODE_ENV=production webpack --progress --colors --display-modules",
-    "build-windows": "set NODE_ENV=production&&webpack --progress --colors --display-modules",
+    "build-windows": "set NODE_ENV=production&&webpack --progress --colors --display-modules&&gulp",
     "s3": "node s3"
   },
   "author": "Brandon Pierce <brandon@adstreaminc.com>",

@@ -205,7 +205,7 @@ var ra =
 	  var baseURL =  false ?
 	    'https://www.recapture.io/beacon/' :
 	    'http://localhost:4000/beacon/';
-
+	    
 	  request(baseURL + endpoint, data, callback);
 
 	}
@@ -899,7 +899,7 @@ var ra =
 	    //This generates the <script> tag
 	    var jsonpScript = document.createElement('script');
 	    jsonpScript.setAttribute("src", url+method+'='+generatedFunction);
-	    document.getElementsByTagName("head")[0].appendChild(jsonpScript)
+	    document.getElementsByTagName("head")[0].appendChild(jsonpScript);
 	  }
 	  window.JSONP = JSONP;
 
@@ -907,12 +907,10 @@ var ra =
 
 	    //if this god-awful communication library is present (<=IE9), we fallback to jsonp
 	    if (window.XDomainRequest){
-
 	      JSONP(url, data, callback);
 
 	      //otherwise we use qwest, and look to the future
 	    } else {
-
 	      qwest.post(url, data)
 	        .then(function(xhr, response){
 	          callback(response);
@@ -2962,7 +2960,7 @@ var ra =
 	  return function() {
 	    data.customer = currentState.customer_id;
 	    data.api_key = currentState.api_key;
-
+	    
 	    state.dispatch(sendPage(data));
 	  };
 	};
