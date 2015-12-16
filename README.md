@@ -1,3 +1,9 @@
+## Additional needed HTML
+
+```
+<!--[if lte IE 8]><script>ra_compatible=false;</script><![endif]-->
+```
+
 ## Overview
 - Async loaded
 - Methods called before lib is loaded will be put in queue and called when ready

@@ -1,7 +1,4 @@
-require('shims');
-
 var state = require('state');
-var ieVersion = require('utils').ieVersion();
 var customer = require('customer')(state);
 var collector = require('collector')(state);
 var init = require('methods/init')(state, customer);
@@ -19,11 +16,6 @@ var queue = root[libName].q || [];
  * @return {Object} Newly constructed ra object
  */
 function create() {
-
-  if (ieVersion && ieVersion < 9) {
-    console.log('Recapture.io detected that you are using an outdated browser.')
-    return;
-  }
 
   var obj = Object.create({
     init: init,

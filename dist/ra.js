@@ -46,16 +46,13 @@ var ra =
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(1);
-
-	var state = __webpack_require__(2);
-	var ieVersion = __webpack_require__(25).ieVersion();
-	var customer = __webpack_require__(26)(state);
-	var collector = __webpack_require__(27)(state);
-	var init = __webpack_require__(33)(state, customer);
-	var page = __webpack_require__(34)(state);
-	var product = __webpack_require__(35)(state);
-	var email = __webpack_require__(36)(state, customer);
+	var state = __webpack_require__(1);
+	var customer = __webpack_require__(24)(state);
+	var collector = __webpack_require__(26)(state);
+	var init = __webpack_require__(32)(state, customer);
+	var page = __webpack_require__(33)(state);
+	var product = __webpack_require__(34)(state);
+	var email = __webpack_require__(35)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -67,11 +64,6 @@ var ra =
 	 * @return {Object} Newly constructed ra object
 	 */
 	function create() {
-
-	  if (ieVersion && ieVersion < 9) {
-	    console.log('Recapture.io detected that you are using an outdated browser.')
-	    return;
-	  }
 
 	  var obj = Object.create({
 	    init: init,
@@ -101,120 +93,12 @@ var ra =
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
-
-	if (typeof Object.create != 'function') {
-	  // Production steps of ECMA-262, Edition 5, 15.2.3.5
-	  // Reference: http://es5.github.io/#x15.2.3.5
-	  Object.create = (function() {
-	    // To save on memory, use a shared constructor
-	    function Temp() {}
-
-	    // make a safe reference to Object.prototype.hasOwnProperty
-	    var hasOwn = Object.prototype.hasOwnProperty;
-
-	    return function (O) {
-	      // 1. If Type(O) is not Object or Null throw a TypeError exception.
-	      if (typeof O != 'object') {
-	        throw TypeError('Object prototype may only be an Object or null');
-	      }
-
-	      // 2. Let obj be the result of creating a new object as if by the
-	      //    expression new Object() where Object is the standard built-in
-	      //    constructor with that name
-	      // 3. Set the [[Prototype]] internal property of obj to O.
-	      Temp.prototype = O;
-	      var obj = new Temp();
-	      Temp.prototype = null; // Let's not keep a stray reference to O...
-
-	      // 4. If the argument Properties is present and not undefined, add
-	      //    own properties to obj as if by calling the standard built-in
-	      //    function Object.defineProperties with arguments obj and
-	      //    Properties.
-	      if (arguments.length > 1) {
-	        // Object.defineProperties does ToObject on its first argument.
-	        var Properties = Object(arguments[1]);
-	        for (var prop in Properties) {
-	          if (hasOwn.call(Properties, prop)) {
-	            obj[prop] = Properties[prop];
-	          }
-	        }
-	      }
-
-	      // 5. Return obj
-	      return obj;
-	    };
-	  })();
-	}
-
-	// Production steps of ECMA-262, Edition 5, 15.4.4.18
-	// Reference: http://es5.github.io/#x15.4.4.18
-	if (!Array.prototype.forEach) {
-
-	  Array.prototype.forEach = function(callback, thisArg) {
-
-	    var T, k;
-
-	    if (this == null) {
-	      throw new TypeError(' this is null or not defined');
-	    }
-
-	    // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-	    var O = Object(this);
-
-	    // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
-	    // 3. Let len be ToUint32(lenValue).
-	    var len = O.length >>> 0;
-
-	    // 4. If IsCallable(callback) is false, throw a TypeError exception.
-	    // See: http://es5.github.com/#x9.11
-	    if (typeof callback !== "function") {
-	      throw new TypeError(callback + ' is not a function');
-	    }
-
-	    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-	    if (arguments.length > 1) {
-	      T = thisArg;
-	    }
-
-	    // 6. Let k be 0
-	    k = 0;
-
-	    // 7. Repeat, while k < len
-	    while (k < len) {
-
-	      var kValue;
-
-	      // a. Let Pk be ToString(k).
-	      //   This is implicit for LHS operands of the in operator
-	      // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
-	      //   This step can be combined with c
-	      // c. If kPresent is true, then
-	      if (k in O) {
-
-	        // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
-	        kValue = O[k];
-
-	        // ii. Call the Call internal method of callback with T as the this value and
-	        // argument list containing kValue, k, and O.
-	        callback.call(T, kValue, k, O);
-	      }
-	      // d. Increase k by 1.
-	      k++;
-	    }
-	    // 8. return undefined
-	  };
-	}
-
-
-/***/ },
-/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var actions = __webpack_require__(3);
-	var redux = __webpack_require__(14);
-	var thunk = __webpack_require__(23);
-	var createLogger = __webpack_require__(24);
+	var actions = __webpack_require__(2);
+	var redux = __webpack_require__(13);
+	var thunk = __webpack_require__(22);
+	var createLogger = __webpack_require__(23);
 
 	var createStore = redux.createStore;
 	var applyMiddleware = redux.applyMiddleware;
@@ -310,11 +194,11 @@ var ra =
 
 
 /***/ },
-/* 3 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var storage = __webpack_require__(4);
-	var request = __webpack_require__(8);
+	var storage = __webpack_require__(3);
+	var request = __webpack_require__(7);
 
 	function sendRequest(endpoint, data, callback) {
 
@@ -460,11 +344,11 @@ var ra =
 
 
 /***/ },
-/* 4 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var store = __webpack_require__(5);
-	var cookies = __webpack_require__(7);
+	var store = __webpack_require__(4);
+	var cookies = __webpack_require__(6);
 
 	/**
 	 * Gets an item from storage
@@ -528,7 +412,7 @@ var ra =
 
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {;(function(win){
@@ -707,10 +591,10 @@ var ra =
 
 	})(Function('return this')());
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -726,7 +610,7 @@ var ra =
 
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -904,10 +788,10 @@ var ra =
 	})(typeof window === 'undefined' ? this : window);
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var qwest = __webpack_require__(9);
+	var qwest = __webpack_require__(8);
 
 	/**
 	 * JSONP sets up and allows you to execute a JSONP request
@@ -1044,7 +928,7 @@ var ra =
 	})(window);
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
@@ -1052,8 +936,8 @@ var ra =
 	module.exports = function() {
 
 		var global = this,
-			pinkyswear = __webpack_require__(10),
-			jparam = __webpack_require__(13),
+			pinkyswear = __webpack_require__(9),
+			jparam = __webpack_require__(12),
 			// Default response type for XDR in auto mode
 			defaultXdrResponseType = 'json',
 			// Variables for limit mechanism
@@ -1433,7 +1317,7 @@ var ra =
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module, setImmediate, process) {/*
@@ -1554,13 +1438,13 @@ var ra =
 	})( false ? [window, 'pinkySwear'] : [module, 'exports']);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module), __webpack_require__(11).setImmediate, __webpack_require__(12)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module), __webpack_require__(10).setImmediate, __webpack_require__(11)))
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(12).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(11).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -1636,10 +1520,10 @@ var ra =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).setImmediate, __webpack_require__(11).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10).setImmediate, __webpack_require__(10).clearImmediate))
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -1736,7 +1620,7 @@ var ra =
 
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1793,7 +1677,7 @@ var ra =
 
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1802,23 +1686,23 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _createStore = __webpack_require__(15);
+	var _createStore = __webpack_require__(14);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _utilsCombineReducers = __webpack_require__(17);
+	var _utilsCombineReducers = __webpack_require__(16);
 
 	var _utilsCombineReducers2 = _interopRequireDefault(_utilsCombineReducers);
 
-	var _utilsBindActionCreators = __webpack_require__(20);
+	var _utilsBindActionCreators = __webpack_require__(19);
 
 	var _utilsBindActionCreators2 = _interopRequireDefault(_utilsBindActionCreators);
 
-	var _utilsApplyMiddleware = __webpack_require__(21);
+	var _utilsApplyMiddleware = __webpack_require__(20);
 
 	var _utilsApplyMiddleware2 = _interopRequireDefault(_utilsApplyMiddleware);
 
-	var _utilsCompose = __webpack_require__(22);
+	var _utilsCompose = __webpack_require__(21);
 
 	var _utilsCompose2 = _interopRequireDefault(_utilsCompose);
 
@@ -1829,7 +1713,7 @@ var ra =
 	exports.compose = _utilsCompose2['default'];
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1839,7 +1723,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _utilsIsPlainObject = __webpack_require__(16);
+	var _utilsIsPlainObject = __webpack_require__(15);
 
 	var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
 
@@ -1991,7 +1875,7 @@ var ra =
 	}
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2026,7 +1910,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2036,17 +1920,17 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _createStore = __webpack_require__(15);
+	var _createStore = __webpack_require__(14);
 
-	var _utilsIsPlainObject = __webpack_require__(16);
+	var _utilsIsPlainObject = __webpack_require__(15);
 
 	var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
 
-	var _utilsMapValues = __webpack_require__(18);
+	var _utilsMapValues = __webpack_require__(17);
 
 	var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
 
-	var _utilsPick = __webpack_require__(19);
+	var _utilsPick = __webpack_require__(18);
 
 	var _utilsPick2 = _interopRequireDefault(_utilsPick);
 
@@ -2159,7 +2043,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports) {
 
 	/**
@@ -2184,7 +2068,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 	/**
@@ -2211,7 +2095,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2221,7 +2105,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _utilsMapValues = __webpack_require__(18);
+	var _utilsMapValues = __webpack_require__(17);
 
 	var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
 
@@ -2271,7 +2155,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2284,7 +2168,7 @@ var ra =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _compose = __webpack_require__(22);
+	var _compose = __webpack_require__(21);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -2337,7 +2221,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/**
@@ -2367,7 +2251,7 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2389,7 +2273,7 @@ var ra =
 	module.exports = exports['default'];
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2509,6 +2393,69 @@ var ra =
 	module.exports = exports["default"];
 
 /***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var uuid = __webpack_require__(25).uuid;
+	var storage = __webpack_require__(3);
+	var actions = __webpack_require__(2);
+
+	var setCustomerId = actions.setCustomerId;
+	var sendCustomerEmail = actions.sendCustomerEmail;
+	var setCustomerEmail = actions.setCustomerEmail;
+
+	module.exports = function(state) {
+
+	  /**
+	   * Creates a new user in storage
+	   * @method create
+	   * @return {Function} Action creator
+	   */
+	  function create() {
+	    state.dispatch(setCustomerId(uuid()));
+	  }
+
+	  /**
+	   * Adds an email address to our customer in storage
+	   * @method email
+	   * @param  {String} email The email we want to add to storage
+	   * @return {Function} Action creators
+	   */
+	  function email(email) {
+	    var currentState = state.getState();
+	    var data = {
+	      email: email,
+	      customer: currentState.customer_id,
+	      api_key: currentState.api_key,
+	    };
+
+	    state.dispatch(setCustomerEmail(email));
+	    state.dispatch(sendCustomerEmail(data));
+	  }
+
+	  /**
+	   * Loads user data from storage
+	   * @method load
+	   * @return {Function} Action creators
+	   */
+	  function load() {
+	    state.dispatch(setCustomerId(storage.get('ra_customer_id')));
+
+	    if (storage.has('ra_customer_email')) {
+	      // do we also need to send the email address as well?
+	      state.dispatch(setCustomerEmail(storage.get('ra_customer_email')));
+	    }
+	  }
+
+	  return Object.create({
+	    create: create,
+	    email: email,
+	    load: load
+	  });
+	};
+
+
+/***/ },
 /* 25 */
 /***/ function(module, exports) {
 
@@ -2595,72 +2542,9 @@ var ra =
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(25).uuid;
-	var storage = __webpack_require__(4);
-	var actions = __webpack_require__(3);
-
-	var setCustomerId = actions.setCustomerId;
-	var sendCustomerEmail = actions.sendCustomerEmail;
-	var setCustomerEmail = actions.setCustomerEmail;
-
-	module.exports = function(state) {
-
-	  /**
-	   * Creates a new user in storage
-	   * @method create
-	   * @return {Function} Action creator
-	   */
-	  function create() {
-	    state.dispatch(setCustomerId(uuid()));
-	  }
-
-	  /**
-	   * Adds an email address to our customer in storage
-	   * @method email
-	   * @param  {String} email The email we want to add to storage
-	   * @return {Function} Action creators
-	   */
-	  function email(email) {
-	    var currentState = state.getState();
-	    var data = {
-	      email: email,
-	      customer: currentState.customer_id,
-	      api_key: currentState.api_key,
-	    };
-
-	    state.dispatch(setCustomerEmail(email));
-	    state.dispatch(sendCustomerEmail(data));
-	  }
-
-	  /**
-	   * Loads user data from storage
-	   * @method load
-	   * @return {Function} Action creators
-	   */
-	  function load() {
-	    state.dispatch(setCustomerId(storage.get('ra_customer_id')));
-
-	    if (storage.has('ra_customer_email')) {
-	      // do we also need to send the email address as well?
-	      state.dispatch(setCustomerEmail(storage.get('ra_customer_email')));
-	    }
-	  }
-
-	  return Object.create({
-	    create: create,
-	    email: email,
-	    load: load
-	  });
-	};
-
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var resetCollector = __webpack_require__(3).resetCollector;
-	var sendCollectorClose = __webpack_require__(3).sendCollectorClose;
-	var css = __webpack_require__(28);
+	var resetCollector = __webpack_require__(2).resetCollector;
+	var sendCollectorClose = __webpack_require__(2).sendCollectorClose;
+	var css = __webpack_require__(27);
 	var utils = __webpack_require__(25);
 
 	var ie = utils.ie();
@@ -2782,11 +2666,11 @@ var ra =
 
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(29)
-	var toCamelCase = __webpack_require__(30)
+	var prefix = __webpack_require__(28)
+	var toCamelCase = __webpack_require__(29)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -2854,7 +2738,7 @@ var ra =
 
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -2878,11 +2762,11 @@ var ra =
 	}
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(31);
+	var toSpace = __webpack_require__(30);
 
 
 	/**
@@ -2907,11 +2791,11 @@ var ra =
 	}
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(32);
+	var clean = __webpack_require__(31);
 
 
 	/**
@@ -2936,7 +2820,7 @@ var ra =
 	}
 
 /***/ },
-/* 32 */
+/* 31 */
 /***/ function(module, exports) {
 
 	
@@ -3015,11 +2899,11 @@ var ra =
 	}
 
 /***/ },
-/* 33 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var storage = __webpack_require__(4);
-	var actions = __webpack_require__(3);
+	var storage = __webpack_require__(3);
+	var actions = __webpack_require__(2);
 
 	var setApiKey = actions.setApiKey;
 
@@ -3037,10 +2921,10 @@ var ra =
 
 
 /***/ },
-/* 34 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var sendPage = __webpack_require__(3).sendPage;
+	var sendPage = __webpack_require__(2).sendPage;
 
 	/**
 	 * Get page data for the current page
@@ -3076,10 +2960,10 @@ var ra =
 
 
 /***/ },
-/* 35 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var sendProduct = __webpack_require__(3).sendProduct;
+	var sendProduct = __webpack_require__(2).sendProduct;
 
 	module.exports = function(state) {
 	  var currentState = state.getState();
@@ -3094,11 +2978,11 @@ var ra =
 
 
 /***/ },
-/* 36 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(37);
-	var actions = __webpack_require__(3);
+	var isEmail = __webpack_require__(36);
+	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
 
@@ -3173,7 +3057,7 @@ var ra =
 
 
 /***/ },
-/* 37 */
+/* 36 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {
