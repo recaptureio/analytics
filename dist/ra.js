@@ -931,11 +931,11 @@ var ra =
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! qwest 2.2.0 (https://github.com/pyrsmk/qwest) */
+	/*! qwest 2.2.2 (https://github.com/pyrsmk/qwest) */
 
 	module.exports = function() {
 
-		var global = this,
+		var global = window || this,
 			pinkyswear = __webpack_require__(9),
 			jparam = __webpack_require__(12),
 			// Default response type for XDR in auto mode
@@ -1016,7 +1016,7 @@ var ra =
 					++requests;
 					sending = true;
 					// Start the chrono
-					timeout_start = Date.now();
+					timeout_start = new Date().getTime();
 					// Get XHR object
 					xhr = getXHR();
 					if(crossOrigin) {
@@ -1095,7 +1095,7 @@ var ra =
 				sending = false;
 				// Verify timeout state
 				// --- https://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f
-				if(Date.now()-timeout_start >= options.timeout) {
+				if(new Date().getTime()-timeout_start >= options.timeout) {
 					if(!options.attempts || ++attempts!=options.attempts) {
 						promise.send();
 					}
@@ -1788,8 +1788,14 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
+	    var isSubscribed = true;
 
 	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+
+	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -2020,13 +2026,16 @@ var ra =
 	      throw sanityError;
 	    }
 
+	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var newState = reducer(state[key], action);
-	      if (typeof newState === 'undefined') {
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      return newState;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	      return nextStateForKey;
 	    });
 
 	    if (true) {
@@ -2036,7 +2045,7 @@ var ra =
 	      }
 	    }
 
-	    return finalState;
+	    return hasChanged ? finalState : state;
 	  };
 	}
 
@@ -2491,7 +2500,7 @@ var ra =
 	  }
 
 	  return version;
-	}
+	};
 
 	/**
 	 * IE detection
@@ -2500,8 +2509,8 @@ var ra =
 	 * @return {Boolean} If browser is IE
 	 */
 	exports.ie = function ie() {
-	  return ieVersion() > -1;
-	}
+	  return exports.ieVersion() > -1;
+	};
 
 	/**
 	 * Gives us the vendor prefixed transition event name
@@ -2524,7 +2533,7 @@ var ra =
 	      return transitions[t];
 	    }
 	  }
-	}
+	};
 
 	/**
 	 * Generates a UUID for our customer

@@ -30,7 +30,7 @@ exports.ieVersion = function ieVersion() {
   }
 
   return version;
-}
+};
 
 /**
  * IE detection
@@ -39,8 +39,8 @@ exports.ieVersion = function ieVersion() {
  * @return {Boolean} If browser is IE
  */
 exports.ie = function ie() {
-  return ieVersion() > -1;
-}
+  return exports.ieVersion() > -1;
+};
 
 /**
  * Gives us the vendor prefixed transition event name
@@ -63,7 +63,7 @@ exports.transitionEvent = function transitionEvent() {
       return transitions[t];
     }
   }
-}
+};
 
 /**
  * Generates a UUID for our customer
