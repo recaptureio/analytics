@@ -1,14 +1,12 @@
 var storage = require('storage');
-var request = require('request');
+var request = require('b-jsonp');
 
 function sendRequest(endpoint, data, callback) {
-
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
     'http://localhost:4000/beacon/';
-    
-  request(baseURL + endpoint, data, callback);
 
+  request(baseURL + endpoint, data, callback);
 }
 
 /**
@@ -71,7 +69,7 @@ var SEND_CUSTOMER_EMAIL = 'SEND_CUSTOMER_EMAIL';
 exports.SEND_CUSTOMER_EMAIL = SEND_CUSTOMER_EMAIL;
 exports.sendCustomerEmail = function(data) {
   return function(dispatch) {
-    sendRequest('email', data, function(response) {
+    sendRequest('email', data, function(err, response) {
       dispatch({
         type: SEND_CUSTOMER_EMAIL,
         payload: response
@@ -87,7 +85,7 @@ var SEND_PRODUCT = 'SEND_PRODUCT';
 exports.SEND_PRODUCT = SEND_PRODUCT;
 exports.sendProduct = function(data) {
   return function(dispatch) {
-    sendRequest('product', data, function(response) {
+    sendRequest('product', data, function(err, response) {
       dispatch({
         type: SEND_PRODUCT,
         payload: response
@@ -103,7 +101,7 @@ var SEND_PAGE = 'SEND_PAGE';
 exports.SEND_PAGE = SEND_PAGE;
 exports.sendPage = function(data) {
   return function(dispatch) {
-    sendRequest('page', data, function(response) {
+    sendRequest('page', data, function(err, response) {
       dispatch({
         type: SEND_PAGE,
         payload: response
@@ -121,7 +119,7 @@ exports.SEND_COLLECTOR_CLOSE = SEND_COLLECTOR_CLOSE;
 exports.sendCollectorClose = function(url) {
   if (!url) return;
   return function(dispatch) {
-    request(url, {}, function(response) {
+    request(url, function(err, response) {
       dispatch({
         type: SEND_COLLECTOR_CLOSE,
         payload: response

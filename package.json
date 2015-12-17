@@ -6,32 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "./node_modules/.bin/webpack --progress --colors --watch&&gulp",
-    "build": "NODE_ENV=production webpack --progress --colors --display-modules",
+    "build": "NODE_ENV=production webpack --progress --colors --display-modules&&gulp",
     "build-windows": "set NODE_ENV=production&&webpack --progress --colors --display-modules&&gulp",
     "s3": "node s3"
   },
   "author": "Brandon Pierce <brandon@adstreaminc.com>",
   "license": "MIT",
   "dependencies": {
+    "b-jsonp": "^1.0.2",
     "check-email-valid": "^1.0.0",
-    "cookie": "^0.2.2",
     "cookies-js": "^1.2.2",
     "dom-css": "^1.1.2",
-    "es5-shim": "^4.1.15",
-    "eventlistener": "0.0.1",
-    "jquery": "^2.1.4",
-    "jsonp": "^0.2.0",
-    "node-uuid": "^1.4.3",
-    "qwest": "^2.2.0",
     "redux": "^3.0.2",
     "redux-actions": "^0.8.0",
     "redux-logger": "^2.0.4",
     "redux-thunk": "^1.0.0",
-    "store": "^1.3.17",
-    "superagent-jsonp": "0.0.6",
-    "superagent-legacyiesupport": "^1.0.1",
-    "then-request": "^2.1.1",
-    "url": "^0.11.0"
+    "store": "^1.3.17"
   },
   "devDependencies": {
     "gulp": "^3.9.0",

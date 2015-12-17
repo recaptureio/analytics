@@ -1,7 +1,8 @@
-var resetCollector = require('actions').resetCollector;
-var sendCollectorClose = require('actions').sendCollectorClose;
 var css = require('dom-css');
 var utils = require('utils');
+var actions = require('actions');
+var resetCollector = actions.resetCollector;
+var sendCollectorClose = actions.sendCollectorClose;
 
 var ie = utils.ie();
 
