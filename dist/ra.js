@@ -48,11 +48,11 @@ var ra =
 
 	var state = __webpack_require__(1);
 	var customer = __webpack_require__(19)(state);
-	var collector = __webpack_require__(21)(state);
-	var init = __webpack_require__(27)(state, customer);
-	var page = __webpack_require__(28)(state);
-	var product = __webpack_require__(29)(state);
-	var email = __webpack_require__(30)(state, customer);
+	var collector = __webpack_require__(22)(state);
+	var init = __webpack_require__(29)(state, customer);
+	var page = __webpack_require__(30)(state);
+	var product = __webpack_require__(31)(state);
+	var email = __webpack_require__(32)(state, customer);
 
 	var root = window;
 	var libName = 'ra';
@@ -789,7 +789,7 @@ var ra =
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!function(n,e){ true?!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (e), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):"object"==typeof module&&module.exports?module.exports=e():n.jsonp=e()}(this,function(){function n(n){var e="[object Function]",o=Object.prototype.toString;return o.call(n)==e}function e(n,e){var t=l.getElementsByTagName("head")[0],r=l.createElement("script");return r.src=n,r.async=!0,r.defer=!0,r.onload=o,t.appendChild(r),r}function o(){this&&this.parentNode&&(this.onload=null,this.onerror=null,this.parentNode.removeChild(this))}function t(n){return n+ ++a}function r(n,e,o,t){var r=-1===n.indexOf("?")?"?":"&";for(var i in e)e.hasOwnProperty(i)&&(r+=encodeURIComponent(i)+"="+encodeURIComponent(e[i])+"&");return n+r+o+"="+t}function i(n){clearTimeout(n),n=null}function u(o,u,l,a){n(u)&&(a=u,u={},l={}),n(l)&&(a=l,l={});var d=l.timeout||15e3,f=l.prefix||"__jsonp",s=l.name||"callback",p=t(f),m=r(o,u,s,p),h=setTimeout(function(){a(new Error("jsonp request for "+p+" timed out."),null),i(h)},d);c[p]=function(n){a(null,n),i(h),c[p]=null};var j=e(m);j.onerror=function(){a(new Error("jsonp encountered an error while loading injected script."),null),i(h)}}var c=window,l=document,a=0;return u});
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!function(n,e){ true?!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (e), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):"object"==typeof module&&module.exports?module.exports=e():n.jsonp=e()}(this,function(){function n(n){n=n||5;for(var e="",t="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",o=t.length,r=0;n>r;r++)e+=t.charAt(Math.floor(Math.random()*o));return e}function e(n){var e="[object Function]",t=Object.prototype.toString;return t.call(n)==e}function t(n,e){var t=l.getElementsByTagName("head")[0],r=l.createElement("script");return r.src=n,r.async=!0,r.defer=!0,r.onload=o,t.appendChild(r),r}function o(){this&&this.parentNode&&(this.onload=null,this.onerror=null,this.parentNode.removeChild(this))}function r(e){return e+"__"+n()}function i(n,e,t,o){var r=-1===n.indexOf("?")?"?":"&";for(var i in e)e.hasOwnProperty(i)&&(r+=f(i)+"="+f(e[i])+"&");return n+r+t+"="+o}function u(n){clearTimeout(n),n=null}function a(n,o,a,l){e(o)&&(l=o,o={},a={}),e(a)&&(l=a,a={});var f=a.timeout||15e3,d=a.prefix||"__jsonp",s=a.param||"callback",p=a.name||r(d),h=i(n,o,s,p),m=setTimeout(function(){u(m),l(new Error("jsonp request for "+p+" timed out."),null)},f);c[p]=function(n){c[p]=null,u(m),l(null,n)};var v=t(h);v.onerror=function(){l(new Error("jsonp encountered an error while loading injected script."),null),u(m)}}var c=this,l=document,f=encodeURIComponent;return a});
 
 /***/ },
 /* 8 */
@@ -1520,7 +1520,7 @@ var ra =
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var uuid = __webpack_require__(20).uuid;
+	var uuid = __webpack_require__(20);
 	var storage = __webpack_require__(3);
 	var actions = __webpack_require__(2);
 
@@ -1536,7 +1536,7 @@ var ra =
 	   * @return {Function} Action creator
 	   */
 	  function create() {
-	    state.dispatch(setCustomerId(Date.now() + '__' + state.getState().api_key + '__' + uuid()));
+	    state.dispatch(setCustomerId(state.getState().api_key + '__' + uuid.v4()));
 	  }
 
 	  /**
@@ -1581,93 +1581,237 @@ var ra =
 
 /***/ },
 /* 20 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	// shim layer with setTimeout fallback
-	window.requestAnimFrame = (function(){
-	  return window.requestAnimationFrame ||
-	    window.webkitRequestAnimationFrame ||
-	    window.mozRequestAnimationFrame ||
-	    function( callback ){
-	      window.setTimeout(callback, 1000 / 60);
-	    };
-	})();
+	//     uuid.js
+	//
+	//     Copyright (c) 2010-2012 Robert Kieffer
+	//     MIT License - http://opensource.org/licenses/mit-license.php
 
-	/**
-	 * Tries to return the exact IE version number to us
-	 * @method ieVersion
-	 * @return {Integer} The IE version number or -1;
-	 */
-	exports.ieVersion = function ieVersion() {
-	  var version = -1; // Return value assumes failure.
-	  var ua = navigator.userAgent;
+	// Unique ID creation requires a high quality random # generator.  We feature
+	// detect to determine the best RNG source, normalizing to a function that
+	// returns 128-bits of randomness, since that's what's usually required
+	var _rng = __webpack_require__(21);
 
-	  if (navigator.appName == 'Microsoft Internet Explorer') {
-	    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-	    if (re.exec(ua) != null) {
-	      version = parseFloat( RegExp.$1 );
+	// Maps for number <-> hex string conversion
+	var _byteToHex = [];
+	var _hexToByte = {};
+	for (var i = 0; i < 256; i++) {
+	  _byteToHex[i] = (i + 0x100).toString(16).substr(1);
+	  _hexToByte[_byteToHex[i]] = i;
+	}
+
+	// **`parse()` - Parse a UUID into it's component bytes**
+	function parse(s, buf, offset) {
+	  var i = (buf && offset) || 0, ii = 0;
+
+	  buf = buf || [];
+	  s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
+	    if (ii < 16) { // Don't overflow!
+	      buf[i + ii++] = _hexToByte[oct];
 	    }
-	  } else if (navigator.appName == 'Netscape') {
-	    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-	    if (re.exec(ua) != null) {
-	      version = parseFloat( RegExp.$1 );
-	    }
-	  }
-
-	  return version;
-	};
-
-	/**
-	 * IE detection
-	 * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
-	 * @method ie
-	 * @return {Boolean} If browser is IE
-	 */
-	exports.ie = function ie() {
-	  return exports.ieVersion() > -1;
-	};
-
-	/**
-	 * Gives us the vendor prefixed transition event name
-	 * @source Modernizr
-	 * @method transitionEvent
-	 * @return {String} Vendor prefixed event name
-	 */
-	exports.transitionEvent = function transitionEvent() {
-	  var t;
-	  var el = document.createElement('fakeelement');
-	  var transitions = {
-	    'transition':'transitionend',
-	    'OTransition':'oTransitionEnd',
-	    'MozTransition':'transitionend',
-	    'WebkitTransition':'webkitTransitionEnd'
-	  }
-
-	  for(t in transitions){
-	    if( el.style[t] !== undefined ){
-	      return transitions[t];
-	    }
-	  }
-	};
-
-	/**
-	 * Generates a UUID for our customer
-	 * @method uuid
-	 * @return {String} Randomly generated UUID
-	 */
-	exports.uuid = function uuid() {
-	  return('' + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function() {
-	    return(0 | Math.random() * 16).toString(16);
 	  });
-	};
+
+	  // Zero out remaining bytes if string was short
+	  while (ii < 16) {
+	    buf[i + ii++] = 0;
+	  }
+
+	  return buf;
+	}
+
+	// **`unparse()` - Convert UUID byte array (ala parse()) into a string**
+	function unparse(buf, offset) {
+	  var i = offset || 0, bth = _byteToHex;
+	  return  bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] + '-' +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]] +
+	          bth[buf[i++]] + bth[buf[i++]];
+	}
+
+	// **`v1()` - Generate time-based UUID**
+	//
+	// Inspired by https://github.com/LiosK/UUID.js
+	// and http://docs.python.org/library/uuid.html
+
+	// random #'s we need to init node and clockseq
+	var _seedBytes = _rng();
+
+	// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+	var _nodeId = [
+	  _seedBytes[0] | 0x01,
+	  _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
+	];
+
+	// Per 4.2.2, randomize (14 bit) clockseq
+	var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
+
+	// Previous uuid creation time
+	var _lastMSecs = 0, _lastNSecs = 0;
+
+	// See https://github.com/broofa/node-uuid for API details
+	function v1(options, buf, offset) {
+	  var i = buf && offset || 0;
+	  var b = buf || [];
+
+	  options = options || {};
+
+	  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+	  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+	  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+	  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+	  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+	  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+	  // Per 4.2.1.2, use count of uuid's generated during the current clock
+	  // cycle to simulate higher resolution clock
+	  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+	  // Time since last uuid creation (in msecs)
+	  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+	  // Per 4.2.1.2, Bump clockseq on clock regression
+	  if (dt < 0 && options.clockseq === undefined) {
+	    clockseq = clockseq + 1 & 0x3fff;
+	  }
+
+	  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+	  // time interval
+	  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+	    nsecs = 0;
+	  }
+
+	  // Per 4.2.1.2 Throw error if too many uuids are requested
+	  if (nsecs >= 10000) {
+	    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+	  }
+
+	  _lastMSecs = msecs;
+	  _lastNSecs = nsecs;
+	  _clockseq = clockseq;
+
+	  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+	  msecs += 12219292800000;
+
+	  // `time_low`
+	  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+	  b[i++] = tl >>> 24 & 0xff;
+	  b[i++] = tl >>> 16 & 0xff;
+	  b[i++] = tl >>> 8 & 0xff;
+	  b[i++] = tl & 0xff;
+
+	  // `time_mid`
+	  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+	  b[i++] = tmh >>> 8 & 0xff;
+	  b[i++] = tmh & 0xff;
+
+	  // `time_high_and_version`
+	  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+	  b[i++] = tmh >>> 16 & 0xff;
+
+	  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+	  b[i++] = clockseq >>> 8 | 0x80;
+
+	  // `clock_seq_low`
+	  b[i++] = clockseq & 0xff;
+
+	  // `node`
+	  var node = options.node || _nodeId;
+	  for (var n = 0; n < 6; n++) {
+	    b[i + n] = node[n];
+	  }
+
+	  return buf ? buf : unparse(b);
+	}
+
+	// **`v4()` - Generate random UUID**
+
+	// See https://github.com/broofa/node-uuid for API details
+	function v4(options, buf, offset) {
+	  // Deprecated - 'format' argument, as supported in v1.2
+	  var i = buf && offset || 0;
+
+	  if (typeof(options) == 'string') {
+	    buf = options == 'binary' ? new Array(16) : null;
+	    options = null;
+	  }
+	  options = options || {};
+
+	  var rnds = options.random || (options.rng || _rng)();
+
+	  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+	  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+	  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+	  // Copy bytes to buffer, if provided
+	  if (buf) {
+	    for (var ii = 0; ii < 16; ii++) {
+	      buf[i + ii] = rnds[ii];
+	    }
+	  }
+
+	  return buf || unparse(rnds);
+	}
+
+	// Export public API
+	var uuid = v4;
+	uuid.v1 = v1;
+	uuid.v4 = v4;
+	uuid.parse = parse;
+	uuid.unparse = unparse;
+
+	module.exports = uuid;
 
 
 /***/ },
 /* 21 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {
+	var rng;
+
+	if (global.crypto && crypto.getRandomValues) {
+	  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
+	  // Moderately fast, high quality
+	  var _rnds8 = new Uint8Array(16);
+	  rng = function whatwgRNG() {
+	    crypto.getRandomValues(_rnds8);
+	    return _rnds8;
+	  };
+	}
+
+	if (!rng) {
+	  // Math.random()-based (RNG)
+	  //
+	  // If all else fails, use Math.random().  It's fast, but is of unspecified
+	  // quality.
+	  var  _rnds = new Array(16);
+	  rng = function() {
+	    for (var i = 0, r; i < 16; i++) {
+	      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+	      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+	    }
+
+	    return _rnds;
+	  };
+	}
+
+	module.exports = rng;
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var css = __webpack_require__(22);
-	var utils = __webpack_require__(20);
+	var css = __webpack_require__(23);
+	var utils = __webpack_require__(28);
 	var actions = __webpack_require__(2);
 	var resetCollector = actions.resetCollector;
 	var sendCollectorClose = actions.sendCollectorClose;
@@ -1791,11 +1935,11 @@ var ra =
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var prefix = __webpack_require__(23)
-	var toCamelCase = __webpack_require__(24)
+	var prefix = __webpack_require__(24)
+	var toCamelCase = __webpack_require__(25)
 	var cache = { 'float': 'cssFloat' }
 
 	var suffixMap = {}
@@ -1863,7 +2007,7 @@ var ra =
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	var elem = null
@@ -1887,11 +2031,11 @@ var ra =
 	}
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(25);
+	var toSpace = __webpack_require__(26);
 
 
 	/**
@@ -1916,11 +2060,11 @@ var ra =
 	}
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(26);
+	var clean = __webpack_require__(27);
 
 
 	/**
@@ -1945,7 +2089,7 @@ var ra =
 	}
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	
@@ -2024,7 +2168,90 @@ var ra =
 	}
 
 /***/ },
-/* 27 */
+/* 28 */
+/***/ function(module, exports) {
+
+	// shim layer with setTimeout fallback
+	window.requestAnimFrame = (function(){
+	  return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    function( callback ){
+	      window.setTimeout(callback, 1000 / 60);
+	    };
+	})();
+
+	/**
+	 * Tries to return the exact IE version number to us
+	 * @method ieVersion
+	 * @return {Integer} The IE version number or -1;
+	 */
+	exports.ieVersion = function ieVersion() {
+	  var version = -1; // Return value assumes failure.
+	  var ua = navigator.userAgent;
+
+	  if (navigator.appName == 'Microsoft Internet Explorer') {
+	    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+	    if (re.exec(ua) != null) {
+	      version = parseFloat( RegExp.$1 );
+	    }
+	  } else if (navigator.appName == 'Netscape') {
+	    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+	    if (re.exec(ua) != null) {
+	      version = parseFloat( RegExp.$1 );
+	    }
+	  }
+
+	  return version;
+	};
+
+	/**
+	 * IE detection
+	 * @source https://msdn.microsoft.com/en-us/library/ms537509(v=vs.85).aspx
+	 * @method ie
+	 * @return {Boolean} If browser is IE
+	 */
+	exports.ie = function ie() {
+	  return exports.ieVersion() > -1;
+	};
+
+	/**
+	 * Gives us the vendor prefixed transition event name
+	 * @source Modernizr
+	 * @method transitionEvent
+	 * @return {String} Vendor prefixed event name
+	 */
+	exports.transitionEvent = function transitionEvent() {
+	  var t;
+	  var el = document.createElement('fakeelement');
+	  var transitions = {
+	    'transition':'transitionend',
+	    'OTransition':'oTransitionEnd',
+	    'MozTransition':'transitionend',
+	    'WebkitTransition':'webkitTransitionEnd'
+	  }
+
+	  for(t in transitions){
+	    if( el.style[t] !== undefined ){
+	      return transitions[t];
+	    }
+	  }
+	};
+
+	/**
+	 * Generates a UUID for our customer
+	 * @method uuid
+	 * @return {String} Randomly generated UUID
+	 */
+	exports.uuid = function uuid() {
+	  return('' + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/1|0/g, function() {
+	    return(0 | Math.random() * 16).toString(16);
+	  });
+	};
+
+
+/***/ },
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var storage = __webpack_require__(3);
@@ -2046,7 +2273,7 @@ var ra =
 
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendPage = __webpack_require__(2).sendPage;
@@ -2085,7 +2312,7 @@ var ra =
 
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sendProduct = __webpack_require__(2).sendProduct;
@@ -2106,10 +2333,10 @@ var ra =
 
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isEmail = __webpack_require__(31);
+	var isEmail = __webpack_require__(33);
 	var actions = __webpack_require__(2);
 
 	var setCartId = actions.setCartId;
@@ -2185,7 +2412,7 @@ var ra =
 
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports) {
 
 	module.exports = function(emailString) {

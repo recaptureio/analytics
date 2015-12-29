@@ -1,4 +1,4 @@
-var uuid = require('utils').uuid;
+var uuid = require('uuid');
 var storage = require('storage');
 var actions = require('actions');
 
@@ -14,7 +14,7 @@ module.exports = function(state) {
    * @return {Function} Action creator
    */
   function create() {
-    state.dispatch(setCustomerId(Date.now() + '__' + state.getState().api_key + '__' + uuid()));
+    state.dispatch(setCustomerId(state.getState().api_key + '__' + uuid.v4()));
   }
 
   /**
