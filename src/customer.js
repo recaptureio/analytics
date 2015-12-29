@@ -14,7 +14,7 @@ module.exports = function(state) {
    * @return {Function} Action creator
    */
   function create() {
-    state.dispatch(setCustomerId(uuid()));
+    state.dispatch(setCustomerId(Date.now() + '__' + state.getState().api_key + '__' + uuid()));
   }
 
   /**

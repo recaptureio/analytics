@@ -903,8 +903,14 @@ var ra =
 	   */
 	  function subscribe(listener) {
 	    listeners.push(listener);
+	    var isSubscribed = true;
 
 	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+
+	      isSubscribed = false;
 	      var index = listeners.indexOf(listener);
 	      listeners.splice(index, 1);
 	    };
@@ -1135,13 +1141,16 @@ var ra =
 	      throw sanityError;
 	    }
 
+	    var hasChanged = false;
 	    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-	      var newState = reducer(state[key], action);
-	      if (typeof newState === 'undefined') {
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
 	        var errorMessage = getUndefinedStateErrorMessage(key, action);
 	        throw new Error(errorMessage);
 	      }
-	      return newState;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	      return nextStateForKey;
 	    });
 
 	    if (true) {
@@ -1151,7 +1160,7 @@ var ra =
 	      }
 	    }
 
-	    return finalState;
+	    return hasChanged ? finalState : state;
 	  };
 	}
 
@@ -1527,7 +1536,7 @@ var ra =
 	   * @return {Function} Action creator
 	   */
 	  function create() {
-	    state.dispatch(setCustomerId(uuid()));
+	    state.dispatch(setCustomerId(Date.now() + '__' + state.getState().api_key + '__' + uuid()));
 	  }
 
 	  /**
@@ -2086,7 +2095,10 @@ var ra =
 
 	  return function(productData) {
 	    productData.customer = currentState.customer_id;
-	    productData.api_key = currentState.api_key;
+	    productData.api_key  = currentState.api_key;
+
+	    productData.url      = window.location.href;
+	    productData.title    = document.title;
 
 	    state.dispatch(sendProduct(productData));
 	  }
