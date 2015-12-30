@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 module.exports = function(config) {
   // Browsers to run on Sauce Labs
   var customLaunchers = {
