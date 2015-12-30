@@ -1,4 +1,11 @@
 module.exports = function(config) {
+
+  // Use ENV vars on Travis and sauce.json locally to get credentials
+  if (!process.env.SAUCE_USERNAME) {
+    process.env.SAUCE_USERNAME = require('./saucelabs').username;
+    process.env.SAUCE_ACCESS_KEY = require('./saucelabs').key;
+  }
+
   // Browsers to run on Sauce Labs
   var customLaunchers = {
     'SL_Chrome': {
@@ -20,9 +27,11 @@ module.exports = function(config) {
     plugins: [
       require('karma-webpack'),
       require('karma-tap'),
-      require('karma-phantomjs-launcher'),
-      require('karma-spec-reporter')
+      require('karma-spec-reporter'),
+      require('karma-sauce-launcher')
     ],
+
+    basePath: '',
 
     logLevel: config.LOG_INFO,
 
@@ -58,4 +67,4 @@ module.exports = function(config) {
       noInfo: true
     }
   });
-});
+};

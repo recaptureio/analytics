@@ -2,6 +2,6 @@ language: node_js
 node_js:
  - "stable"
 before_script: npm install -g karma-cli
-script: karma start saucelabs-karma.conf.js
+script: karma start karma-ci.conf.js
 addons:
   sauce_connect: true

@@ -5,6 +5,7 @@
   "main": "dist/ra.min.js",
   "scripts": {
     "test": "karma start",
+    "test-ci": "karma start karma-ci.conf.js",
     "dev": "./node_modules/.bin/webpack --progress --colors --watch&&gulp",
     "build": "NODE_ENV=production webpack --progress --colors --display-modules&&gulp",
     "build-windows": "set NODE_ENV=production&&webpack --progress --colors --display-modules&&gulp",

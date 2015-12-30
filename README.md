@@ -1,25 +1,15 @@
-## Additional needed HTML
+# Recapture.io Analytics
 
-```
-<!--[if lte IE 8]><script>ra_compatible=false;</script><![endif]-->
-```
+[![Travis](https://img.shields.io/travis/recaptureio/analytics.svg)]()
 
 ## Overview
-- Async loaded
-- Methods called before lib is loaded will be put in queue and called when ready
-- Utilizes v4 UUID for customer tracking
-- Small footprint
-
-Local storage and cookies keys:
-
-`ra_customer_id` and `ra_customer_email` (if set)
-
-All method calls will point to `http://recapture.io/beacon` if using minified js, otherwise it will point to `http://localhost:4000/beacon`
+- Asynchronous loading for optimal performance
+- Built in method stub queue to handle methods called before library is fully loaded
+- Lightweight and tiny footprint
 
 ## Including the library
 ```html
-  <script src="path/to/ra-queue.min.js"></script>
-  <script src="path/to/ra.min.js" async defer></script>
+<script src="path/to/ra-queue.min.js"></script>
 ```
 
 ## Methods
