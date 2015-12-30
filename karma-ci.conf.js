@@ -55,6 +55,18 @@ module.exports = function(config) {
 
     captureTimeout: 120000,
 
+    sauceLabs: {
+      startConnect: false,
+      testName: 'Karma and Sauce Labs demo',
+      recordScreenshots: true,
+      connectOptions: {
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+        port: 5757,
+        logfile: 'sauce_connect.log'
+      }
+    },
+
     port: 9876,
 
     webpack: {
