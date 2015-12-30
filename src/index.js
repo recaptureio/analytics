@@ -8,7 +8,7 @@ var email = require('methods/email')(state, customer);
 
 var root = window;
 var libName = 'ra';
-var queue = root[libName].q || [];
+var queue = root[libName] ? root[libName].q : [];
 
 /**
  * Factory function to get things rollin
@@ -21,7 +21,8 @@ function create() {
     init: init,
     page: page,
     product: product,
-    email: email
+    email: email,
+    state: state
   });
 
   // run through our queue and apply methods as needed
@@ -41,3 +42,6 @@ function create() {
 
 // override global
 root[libName] = create();
+module.exports = root[libName];
+
+console.log(typeof root[libName].page === 'function');

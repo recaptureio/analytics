@@ -67,7 +67,11 @@ module.exports = function(state, customer) {
     customer.email(email);
   }
 
-  return function() {
+  return function(email) {
+    if (email) {
+      setEmail(email);
+    }
+
     attachListeners();
   }
 };

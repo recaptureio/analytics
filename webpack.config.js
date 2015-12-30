@@ -28,7 +28,8 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist/'),
     filename: isProduction ? 'ra.min.js' : 'ra.js',
-    library: 'ra'
+    library: 'ra',
+    libraryTarget: isProduction ? 'var' : 'umd'
   },
 
   resolve: {
