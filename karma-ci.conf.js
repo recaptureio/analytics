@@ -6,6 +6,8 @@ module.exports = function(config) {
     process.env.SAUCE_ACCESS_KEY = require('./saucelabs').key;
   }
 
+  var buildLabel = 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';
+
   // Browsers to run on Sauce Labs
   var customLaunchers = {
     'SL_Chrome': {
@@ -55,16 +57,14 @@ module.exports = function(config) {
 
     captureTimeout: 120000,
 
+    browserNoActivityTimeout: 120000,
+
     sauceLabs: {
-      startConnect: false,
-      testName: 'Karma and Sauce Labs demo',
-      recordScreenshots: true,
-      connectOptions: {
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
-        port: 5757,
-        logfile: 'sauce_connect.log'
-      }
+      build: buildLabel,
+      testName: 'Recapture.io analytics library'
+      // startConnect: false,
+      // recordScreenshots: true,
+      // tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
     },
 
     port: 9876,
