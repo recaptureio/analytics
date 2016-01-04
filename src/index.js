@@ -43,5 +43,3 @@ function create() {
 // override global
 root[libName] = create();
 module.exports = root[libName];
-
-console.log(typeof root[libName].page === 'function');

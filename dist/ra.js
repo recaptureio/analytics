@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.1.3 | MIT & BSD */
+/*! Recapture.io SDK v1.2.0 | MIT & BSD */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -100,8 +100,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	// override global
 	root[libName] = create();
 	module.exports = root[libName];
-
-	console.log(typeof root[libName].page === 'function');
 
 
 /***/ },
@@ -216,9 +214,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	function sendRequest(endpoint, data, callback) {
 	  var baseURL =  false ?
 	    'https://www.recapture.io/beacon/' :
-	    'http://localhost:4000/beacon/';
+	    'http://10.1.10.115:4000/beacon/';
 
 	  request(baseURL + endpoint, data, callback);
+	}
+
+	function errorMsg(err) {
+	  var msg = 'It looks like Recapture.io ran into an issue. Error message:';
+	  return msg + '"' + err.message + '"';
 	}
 
 	/**
@@ -282,10 +285,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.sendCustomerEmail = function(data) {
 	  return function(dispatch) {
 	    sendRequest('email', data, function(err, response) {
-	      dispatch({
-	        type: SEND_CUSTOMER_EMAIL,
-	        payload: response
-	      });
+	      if (err) {
+	        console.log(errorMsg(err));
+	        dispatch({ type: SEND_CUSTOMER_EMAIL, payload: {}});
+	      } else {
+	        dispatch({
+	          type: SEND_CUSTOMER_EMAIL,
+	          payload: response
+	        });
+	      }
 	    })
 	  };
 	}
@@ -298,10 +306,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.sendProduct = function(data) {
 	  return function(dispatch) {
 	    sendRequest('product', data, function(err, response) {
-	      dispatch({
-	        type: SEND_PRODUCT,
-	        payload: response
-	      });
+	      if (err) {
+	        console.log(errorMsg(err));
+	        dispatch({ type: SEND_PRODUCT, payload: {}});
+	      } else {
+	        dispatch({
+	          type: SEND_PRODUCT,
+	          payload: response
+	        });
+	      }
 	    })
 	  };
 	};
@@ -314,10 +327,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.sendPage = function(data) {
 	  return function(dispatch) {
 	    sendRequest('page', data, function(err, response) {
-	      dispatch({
-	        type: SEND_PAGE,
-	        payload: response
-	      });
+	      if (err) {
+	        console.log(errorMsg(err));
+	        dispatch({ type: SEND_PAGE, payload: {}});
+	      } else {
+	        dispatch({
+	          type: SEND_PAGE,
+	          payload: response
+	        });
+	      }
 	    })
 	  };
 	};
@@ -332,10 +350,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!url) return;
 	  return function(dispatch) {
 	    request(url, function(err, response) {
-	      dispatch({
-	        type: SEND_COLLECTOR_CLOSE,
-	        payload: response
-	      });
+	      if (err) {
+	        console.log(errorMsg(err));
+	        dispatch({ type: SEND_COLLECTOR_CLOSE, payload: {}});
+	      } else {
+	        dispatch({
+	          type: SEND_COLLECTOR_CLOSE,
+	          payload: response
+	        });
+	      }
 	    })
 	  };
 	};

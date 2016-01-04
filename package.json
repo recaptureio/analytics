@@ -1,6 +1,6 @@
 {
   "name": "recapture-analytics",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/ra.min.js",
   "scripts": {

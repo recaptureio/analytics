@@ -6,26 +6,46 @@ module.exports = function(config) {
     process.env.SAUCE_ACCESS_KEY = require('./saucelabs').key;
   }
 
-  var buildLabel = 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';
-
   // Browsers to run on Sauce Labs
   var customLaunchers = {
     'SL_Chrome': {
       base: 'SauceLabs',
       browserName: 'chrome'
     },
-    'SL_InternetExplorer': {
+    'SL_Firefox': {
+      base: 'SauceLabs',
+      browserName: 'firefox'
+    },
+    'SL_Safari': {
+      base: 'SauceLabs',
+      browserName: 'safari'
+    },
+    'SL_IE_9': {
+      base: 'SauceLabs',
+      browserName: 'internet explorer',
+      version: '9'
+    },
+    'SL_IE_10': {
       base: 'SauceLabs',
       browserName: 'internet explorer',
       version: '10'
     },
-    'SL_FireFox': {
+    'SL_IE_11': {
       base: 'SauceLabs',
-      browserName: 'firefox',
+      browserName: 'internet explorer',
+      version: '11'
+    },
+    'SL_iOS': {
+      base: "SauceLabs",
+      browserName: "iphone"
+    },
+    'SL_Android': {
+      base: "SauceLabs",
+      browserName: "android"
     }
   };
 
-  config.set({
+  var conf = {
     plugins: [
       require('karma-webpack'),
       require('karma-tap'),
@@ -55,16 +75,15 @@ module.exports = function(config) {
 
     colors: true,
 
-    captureTimeout: 120000,
+    captureTimeout: 0,
 
     browserNoActivityTimeout: 120000,
 
     sauceLabs: {
-      build: buildLabel,
-      testName: 'Recapture.io analytics library'
-      // startConnect: false,
-      // recordScreenshots: true,
-      // tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
+      testName: 'Recapture.io analytics library',
+      startConnect: true,
+      username: process.env.SAUCE_USERNAME,
+      accessKey: process.env.SAUCE_ACCESS_KEY
     },
 
     port: 9876,
@@ -78,5 +97,19 @@ module.exports = function(config) {
     webpackMiddleware: {
       noInfo: true
     }
-  });
+  };
+
+  if (process.env.TRAVIS_JOB_NUMBER) {
+    conf.sauceLabs.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
+  }
+
+  if (process.env.TRAVIS) {
+    var buildLabel = 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';
+
+    conf.build = buildLabel
+    conf.logLevel = config.LOG_DEBUG;
+    conf.sauceLabs.startConnect = false;
+  }
+
+  config.set(conf);
 };
