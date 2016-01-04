@@ -4,7 +4,4 @@ node_js:
 before_script: npm install -g karma-cli
 script: karma start karma-ci.conf.js
 addons:
-  sauce_connect:
-    username: reacpture-analytics
-    access_key:
-      secure: NUt3ghxufmdYakuKeVzi2H8ct61VBjqv1FDqMt6ISnEqdyvIHnfD424bnssP3F1oME4exQjDuxItumrYzgXvdd6JbnqT/bFEb2Xenxxu0My2Toe/2/JDaWHK2EQY8zoX4MMxkSycsElyvf4YMmEze70YkSRXyvS+GOYQXt7u0l8R/08pT7fNH7Fr3XFc9DPNVamIOYZGhx+mEree8ec0Iex5X6cBKi/tSslm9VrO6hQlAJz2XguegvDlIIwPcpKvo9jj3hb0m7GB09ZViRgKHJj4uSf6LVRQMjx5fnbJpH+NZHQFeUa/TOFCdH2FrnZ0pZ93Sfs+idK/ptP5c/dyq9vbd4is7761R+4+Z6459qF+KCArCpUz5Nye7MKrrck30WGJ+8oVZT1du2NOYPL4G7eHtVsY0BE2edWVtYuzt0YG5gdYcJYwr1Mg9mnvzmtcfe8yD/EcxXHobBNJdEFgOa45S1XQPi1wMRDWGnHDlzr+4ineGKYaaBR05gca0/xCsEhUqfm6nb+MPvzxvlYsX9gtvdHdoEYl9W1D27VcmHp3FGLsYZow+V7KX6/nWsAlLUFnorAj7j6Wx71otl2K1xIszEUhRwMmU7I7wNqr5gZNXdpAtI9MPdxdjLo5UtfRlYuIeImsTuvf/O6KnLTi1xmViB9uPlNF+bdlwwtJ+gY=
+  sauce_connect: true
