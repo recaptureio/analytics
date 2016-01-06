@@ -4,7 +4,7 @@ var request = require('b-jsonp');
 function sendRequest(endpoint, data, callback) {
   var baseURL = process.env.NODE_ENV === 'production' ?
     'https://www.recapture.io/beacon/' :
-    'http://10.1.10.115:4000/beacon/';
+    'http://localhost:4000/beacon/';
 
   request(baseURL + endpoint, data, callback);
 }
