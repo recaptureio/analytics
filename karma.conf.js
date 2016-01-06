@@ -2,7 +2,8 @@ module.exports = function(config) {
   config.set({
     plugins: [
       require('karma-webpack'),
-      require('karma-tap'),
+      require('karma-mocha'),
+      require('karma-chai'),
       require('karma-phantomjs-launcher'),
       require('karma-spec-reporter')
     ],
@@ -15,7 +16,7 @@ module.exports = function(config) {
 
     singleRun: false,
 
-    frameworks: ['tap'],
+    frameworks: ['mocha', 'chai'],
 
     files: ['test/index.js'],
 

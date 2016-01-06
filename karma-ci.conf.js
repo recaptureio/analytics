@@ -48,7 +48,8 @@ module.exports = function(config) {
   var conf = {
     plugins: [
       require('karma-webpack'),
-      require('karma-tap'),
+      require('karma-mocha'),
+      require('karma-chai'),
       require('karma-spec-reporter'),
       require('karma-sauce-launcher')
     ],
@@ -63,7 +64,7 @@ module.exports = function(config) {
 
     singleRun: true,
 
-    frameworks: ['tap'],
+    frameworks: ['mocha', 'chai'],
 
     files: ['test/index.js'],
 
