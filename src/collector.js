@@ -6,7 +6,7 @@ var sendCollectorClose = actions.sendCollectorClose;
 
 var ie = utils.ie();
 
-module.exports = function(state) {
+module.exports = function(state, ee) {
 
   /**
    * Removes collector iframe and close button from DOM

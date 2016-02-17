@@ -6,7 +6,7 @@ var setCustomerId = actions.setCustomerId;
 var sendCustomerEmail = actions.sendCustomerEmail;
 var setCustomerEmail = actions.setCustomerEmail;
 
-module.exports = function(state) {
+module.exports = function(state, ee) {
 
   /**
    * Creates a new user in storage

@@ -32,9 +32,17 @@
     </script>
     <script async src="../dist/ra.js"></script>
     <script>
+      function addDom() {
+      	var input = document.createElement('input');
+        document.body.appendChild(input);
+      }
+
+      setTimeout(addDom, 100);
+
       ra('init', ['mqupslok']);
       ra('email');
       ra('page');
+
       // ra('product', [{
       //   sku: '123'
       // }]);

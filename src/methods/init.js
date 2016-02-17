@@ -8,9 +8,6 @@ module.exports = function(state, customer) {
 
   return function(apiKey) {
     state.dispatch(setApiKey(apiKey));
-
-    storage.has('ra_customer_id') ?
-      customer.load() :
-      customer.create();
+    storage.has('ra_customer_id') ? customer.load() : customer.create();
   }
 }

@@ -4,28 +4,9 @@ var actions = require('actions');
 var setCartId = actions.setCartId;
 
 module.exports = function(state, customer) {
-
-  var timers = [];
+  var timer = null;
   var inputs = document.getElementsByTagName('input');
-
-  /**
-   * Attach keyup listener to all inputs on page
-   * @method attachListeners
-   */
-  function attachListeners() {
-    if (inputs && inputs.length) {
-      for (var i = 0, len = inputs.length; i < len; i++) {
-
-        // check to see if input already has a value prefilled
-        if (inputs[i].value && checkIsEmail(inputs[i].value)) {
-          setEmail(inputs[i].value);
-        }
-
-        inputs[i].addEventListener('keyup', waitForTyping, false);
-        timers.push(0);
-      }
-    }
-  }
+  var inputsLength = inputs.length;
 
   /**
    * Event callback for keyp event to put email check in queue
@@ -33,19 +14,20 @@ module.exports = function(state, customer) {
    * @param  {Object} e Event object
    */
   function waitForTyping(e) {
-    var value = e.target.value;
+    var target = e.target;
+    var value = target.value;
 
-    for (var i = 0, len = inputs.length; i < len;   i++) {
-      if (inputs[i] === e.target) {
-        clearTimeout(timers[i]);
-
-        timers[i] = setTimeout(function() {
-          if (checkIsEmail(value)) {
-            setEmail(value);
-          }
-        }, 2000);
-      }
+    if (target.tagName !== 'INPUT') {
+      return;
     }
+
+    clearTimeout(timer);
+
+    timer = setTimeout(function() {
+      if (checkIsEmail(value)) {
+        setEmail(value);
+      }
+    }, 2000);
   }
 
   /**
@@ -67,11 +49,29 @@ module.exports = function(state, customer) {
     customer.email(email);
   }
 
-  return function(email) {
+  /**
+   * Attach keyup listener to all inputs on page
+   * @method attachListeners
+   */
+  function attachListeners() {
+    document.addEventListener('keyup', waitForTyping, false);
+
+    if (inputsLength) {
+      for (var i = 0; i < inputsLength; i++) {
+
+        // check to see if input already has a value prefilled
+        if (inputs[i].value && checkIsEmail(inputs[i].value)) {
+          setEmail(inputs[i].value);
+        }
+      }
+    }
+  }
+
+  return function emailMethod(email) {
     if (email) {
       setEmail(email);
     }
 
     attachListeners();
-  }
+  };
 };

@@ -18,7 +18,7 @@ window.ra.q = [];
     script.type = 'text/javascript';
     script.async = true;
 
-    script.src = 'http://local.dev/recapture-analytics/dist/ra.js';
+    script.src = '../dist/ra.js';
     // script.src = '//local.dev:81/recapture-analytics/dist/ra.js';
 
     doc.body.appendChild(script);
