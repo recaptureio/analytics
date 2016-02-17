@@ -30,12 +30,9 @@ module.exports = function(state, ee) {
       }, false);
     }
 
-    if (logClose){
-
-    state.dispatch(sendCollectorClose(url));
-
+    if (logClose) {
+      state.dispatch(sendCollectorClose(url));
     }
-
   }
 
   /**
@@ -47,6 +44,7 @@ module.exports = function(state, ee) {
     window.addEventListener('message', function(e) {
       switch (e.data) {
         case 'recapture::init':
+          ee.emit('ra.events.collector.show');
           css(iframe, 'display', 'block');
 
           if (!ie) {
@@ -57,10 +55,12 @@ module.exports = function(state, ee) {
           break;
 
         case 'recapture::close':
+          ee.emit('ra.events.collector.close');
           removeCollector(true);
           break;
 
         case 'recapture::submit':
+          ee.emit('ra.events.collector.submit');
           removeCollector();
           break;
 

@@ -3,7 +3,7 @@ var actions = require('actions');
 
 var setCartId = actions.setCartId;
 
-module.exports = function(state, customer) {
+module.exports = function(state, ee, customer) {
   var timer = null;
   var inputs = document.getElementsByTagName('input');
   var inputsLength = inputs.length;
@@ -46,6 +46,7 @@ module.exports = function(state, customer) {
    * @param  {String} email The email address we want to set
    */
   function setEmail(email) {
+    ee.emit('ra.events.email', email);
     customer.email(email);
   }
 

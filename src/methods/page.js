@@ -15,7 +15,7 @@ function getPageData() {
   };
 }
 
-module.exports = function(state) {
+module.exports = function(state, ee) {
   var currentState = state.getState();
   var data = getPageData();
 
@@ -23,6 +23,7 @@ module.exports = function(state) {
     data.customer = currentState.customer_id;
     data.api_key = currentState.api_key;
 
+    ee.emit('ra.events.page', data);
     state.dispatch(sendPage(data));
   };
 };

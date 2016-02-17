@@ -1,10 +1,13 @@
+var EventEmitter = require('smelly-event-emitter');
+var ee = new EventEmitter();
+
 var state = require('state');
 var customer = require('customer')(state);
-var collector = require('collector')(state);
-var init = require('methods/init')(state, customer);
-var page = require('methods/page')(state);
-var product = require('methods/product')(state);
-var email = require('methods/email')(state, customer);
+var collector = require('collector')(state, ee);
+var init = require('methods/init')(state, ee, customer);
+var page = require('methods/page')(state, ee);
+var product = require('methods/product')(state, ee);
+var email = require('methods/email')(state, ee, customer);
 
 var root = window;
 var libName = 'ra';
@@ -22,7 +25,8 @@ function create() {
     page: page,
     product: product,
     email: email,
-    state: state
+    state: state,
+    on: ee.on
   });
 
   // run through our queue and apply methods as needed
@@ -32,7 +36,11 @@ function create() {
       var args = q.shift();
 
       if (obj[method]) {
-        obj[method].apply(obj, args);
+        if (method === 'on') {
+          ee.on.apply(ee, args);
+        } else {
+          obj[method].apply(obj, args);
+        }
       }
     });
   }

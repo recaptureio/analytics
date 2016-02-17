@@ -1,6 +1,6 @@
 var sendProduct = require('actions').sendProduct;
 
-module.exports = function(state) {
+module.exports = function(state, ee) {
   var currentState = state.getState();
 
   return function(productData) {
@@ -9,6 +9,7 @@ module.exports = function(state) {
     productData.url = window.location.href;
     productData.title = document.title;
 
+    ee.emit('ra.events.product', productData);
     state.dispatch(sendProduct(productData));
   }
 }
