@@ -26,7 +26,9 @@ function create() {
     product: product,
     email: email,
     state: state,
-    on: ee.on
+    on: function(eventName, callback) {
+      return ee.on.call(ee, eventName, callback);
+    }
   });
 
   // run through our queue and apply methods as needed

@@ -9,6 +9,16 @@ module.exports = function(state, ee, customer) {
   var inputsLength = inputs.length;
 
   /**
+   * Conditional check to see if we are recieving a valid email address
+   * @method checkIsEmail
+   * @param  {String} value An email address value
+   * @return {Boolean} Whether our value is an email address or not
+   */
+  function checkIsEmail(value) {
+    return value && isEmail(value);
+  }
+
+  /**
    * Event callback for keyp event to put email check in queue
    * @method waitForTyping
    * @param  {Object} e Event object
@@ -28,16 +38,6 @@ module.exports = function(state, ee, customer) {
         setEmail(value);
       }
     }, 2000);
-  }
-
-  /**
-   * Conditional check to see if we are recieving a valid email address
-   * @method checkIsEmail
-   * @param  {String} value An email address value
-   * @return {Boolean} Whether our value is an email address or not
-   */
-  function checkIsEmail(value) {
-    return value && isEmail(value);
   }
 
   /**

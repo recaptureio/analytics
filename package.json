@@ -1,6 +1,6 @@
 {
   "name": "recapture-analytics",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "",
   "main": "dist/ra.min.js",
   "scripts": {
@@ -45,6 +45,7 @@
     "karma-tap": "^1.0.3",
     "karma-webpack": "^1.7.0",
     "mocha": "^2.3.4",
+    "mocha-logger": "^1.0.2",
     "phantomjs": "^1.9.19",
     "s3": "^4.4.0",
     "webpack": "^1.12.2"

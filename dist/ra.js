@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.4.0 | MIT & BSD */
+/*! Recapture.io SDK v1.4.1 | MIT & BSD */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -83,7 +83,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    product: product,
 	    email: email,
 	    state: state,
-	    on: ee.on
+	    on: function(eventName, callback) {
+	      return ee.on.call(ee, eventName, callback);
+	    }
 	  });
 
 	  // run through our queue and apply methods as needed
@@ -2439,6 +2441,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var inputsLength = inputs.length;
 
 	  /**
+	   * Conditional check to see if we are recieving a valid email address
+	   * @method checkIsEmail
+	   * @param  {String} value An email address value
+	   * @return {Boolean} Whether our value is an email address or not
+	   */
+	  function checkIsEmail(value) {
+	    return value && isEmail(value);
+	  }
+
+	  /**
 	   * Event callback for keyp event to put email check in queue
 	   * @method waitForTyping
 	   * @param  {Object} e Event object
@@ -2458,16 +2470,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        setEmail(value);
 	      }
 	    }, 2000);
-	  }
-
-	  /**
-	   * Conditional check to see if we are recieving a valid email address
-	   * @method checkIsEmail
-	   * @param  {String} value An email address value
-	   * @return {Boolean} Whether our value is an email address or not
-	   */
-	  function checkIsEmail(value) {
-	    return value && isEmail(value);
 	  }
 
 	  /**

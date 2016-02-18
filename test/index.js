@@ -52,6 +52,15 @@ describe('ra', function() {
     assert.equal(cookies.get('ra_customer_email'), testEmail, 'cookie email value is correct');
   });
 
+  it('page method works and ra should subscribe to page event emitter', function(done) {
+    ra.on('ra.events.page', function(page) {
+      assert.ok(page, 'Page data passed to event emitter callback');
+      done();
+    });
+
+    ra.page();
+  });
+
   it('should load existing customer from localstorage', function() {
     // change ra_customer_id in local storage
     cookies.expire('ra_customer_id');
