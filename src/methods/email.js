@@ -46,7 +46,6 @@ module.exports = function(state, ee, customer) {
    * @param  {String} email The email address we want to set
    */
   function setEmail(email) {
-    ee.emit('ra.events.email', email);
     customer.email(email);
   }
 

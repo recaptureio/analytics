@@ -39,11 +39,6 @@
 
       setTimeout(addDom, 100);
 
-      ra('on', ['ra.events.page', function(page) {
-        console.log('page event emitted');
-        console.log('page data', page);
-      }]);
-
       ra('on', ['ra.events.collector.close', function() {
         console.log('collector closed');
       }])
@@ -51,6 +46,11 @@
       ra('init', ['mqupslok']);
       ra('email');
       ra('page');
+
+      ra('on', ['ra.events.page', function(page) {
+        console.log('page event emitted');
+        console.log('page data', page);
+      }]);
 
     </script>
   </body>

@@ -42,10 +42,8 @@ module.exports = function(state, ee) {
    */
   function showCollector() {
     var iframe = document.getElementById('recapture-collector');
-
     var url = iframe.src + '/show';
 
-    ee.emit('ra.events.collector.show');
     css(iframe, 'display', 'block');
 
     if (!ie) {
@@ -55,7 +53,6 @@ module.exports = function(state, ee) {
     }
 
     state.dispatch(sendCollectorOpen(url));
-
   }
 
   /**
@@ -67,15 +64,19 @@ module.exports = function(state, ee) {
     window.addEventListener('message', function(e) {
       switch (e.data) {
         case 'recapture::init':
+          ee.raEmitQueue['ra.events.collector.show'] = null; // add to emit queue
+          ee.emit('ra.events.collector.show');
           showCollector();
           break;
 
         case 'recapture::close':
+          ee.raEmitQueue['ra.events.collector.close'] = null; // add to emit queue
           ee.emit('ra.events.collector.close');
           removeCollector(true);
           break;
 
         case 'recapture::submit':
+          ee.raEmitQueue['ra.events.collector.submit'] = null; // add to emit queue
           ee.emit('ra.events.collector.submit');
           removeCollector();
           break;

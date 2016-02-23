@@ -9,6 +9,7 @@ module.exports = function(state, ee) {
     productData.url = window.location.href;
     productData.title = document.title;
 
+    ee.raEmitQueue['ra.events.product'] = productData; // add to emit queue
     ee.emit('ra.events.product', productData);
     state.dispatch(sendProduct(productData));
   }

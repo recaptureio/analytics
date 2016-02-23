@@ -1,6 +1,9 @@
 var EventEmitter = require('smelly-event-emitter');
 var ee = new EventEmitter();
 
+// an event queue specifically for Recapture
+ee.raEmitQueue = {};
+
 var state = require('state');
 var customer = require('customer')(state);
 var collector = require('collector')(state, ee);
@@ -27,8 +30,14 @@ function create() {
     email: email,
     state: state,
     on: function(eventName, callback) {
+      // in 99% of cases this will fire since a user cannot 100% of the time
+      // setup event listeners before the events are emitted
+      if (ee.raEmitQueue[eventName]) {
+        return callback.call(ee, ee.raEmitQueue[eventName]);
+      }
+
       return ee.on.call(ee, eventName, callback);
-    }
+    },
   });
 
   // run through our queue and apply methods as needed
@@ -39,7 +48,7 @@ function create() {
 
       if (obj[method]) {
         if (method === 'on') {
-          ee.on.apply(ee, args);
+          obj[method].apply(ee, args);
         } else {
           obj[method].apply(obj, args);
         }

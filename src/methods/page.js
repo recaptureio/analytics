@@ -23,6 +23,7 @@ module.exports = function(state, ee) {
     data.customer = currentState.customer_id;
     data.api_key = currentState.api_key;
 
+    ee.raEmitQueue['ra.events.page'] = data; // add to emit queue
     ee.emit('ra.events.page', data);
     state.dispatch(sendPage(data));
   };
