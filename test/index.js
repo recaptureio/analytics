@@ -61,6 +61,14 @@ describe('ra', function() {
     ra.page();
   });
 
+  it('event emitters also work if .on is called after an event has been emitted', function(done) {
+    ra.product({ foo: 'bar' });
+    ra.on('ra.events.product', function(product) {
+      assert.ok(product, 'Product data passed to event emitter callback');
+      done();
+    });
+  });
+
   it('should load existing customer from localstorage', function() {
     // change ra_customer_id in local storage
     cookies.expire('ra_customer_id');
