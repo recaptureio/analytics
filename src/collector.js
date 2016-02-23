@@ -3,6 +3,7 @@ var utils = require('utils');
 var actions = require('actions');
 var resetCollector = actions.resetCollector;
 var sendCollectorClose = actions.sendCollectorClose;
+var sendCollectorOpen = actions.sendCollectorOpen;
 
 var ie = utils.ie();
 
@@ -36,6 +37,28 @@ module.exports = function(state, ee) {
   }
 
   /**
+   * Removes collector iframe and close button from DOM
+   * @method removeCollector
+   */
+  function showCollector() {
+    var iframe = document.getElementById('recapture-collector');
+
+    var url = iframe.src + '/show';
+
+    ee.emit('ra.events.collector.show');
+    css(iframe, 'display', 'block');
+
+    if (!ie) {
+      requestAnimFrame(function() {
+        css(iframe, 'opacity', 1);
+      });
+    }
+
+    state.dispatch(sendCollectorOpen(url));
+
+  }
+
+  /**
    * Sets up our iframe load event and our subscribe / close button listeners
    * @method initializeIframe
    * @param  {Oject} iframe The iframe DOM node
@@ -44,14 +67,7 @@ module.exports = function(state, ee) {
     window.addEventListener('message', function(e) {
       switch (e.data) {
         case 'recapture::init':
-          ee.emit('ra.events.collector.show');
-          css(iframe, 'display', 'block');
-
-          if (!ie) {
-            requestAnimFrame(function() {
-              css(iframe, 'opacity', 1);
-            });
-          }
+          showCollector();
           break;
 
         case 'recapture::close':

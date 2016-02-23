@@ -155,6 +155,29 @@ exports.sendCollectorClose = function(url) {
 
 
 /**
+ * Send collector close data to recapture
+ */
+var SEND_COLLECTOR_OPEN = 'SEND_COLLECTOR_OPEN';
+exports.SEND_COLLECTOR_OPEN = SEND_COLLECTOR_OPEN;
+exports.sendCollectorOpen = function(url) {
+  if (!url) return;
+  return function(dispatch) {
+    request(url, function(err, response) {
+      if (err) {
+        console.log(errorMsg(err));
+        dispatch({ type: SEND_COLLECTOR_OPEN, payload: {}});
+      } else {
+        dispatch({
+          type: SEND_COLLECTOR_OPEN,
+          payload: response
+        });
+      }
+    })
+  };
+};
+
+
+/**
  * To make sure subsequent api calls do not show collector again
  */
 var RESET_COLLECTOR = 'RESET_COLLECTOR';
