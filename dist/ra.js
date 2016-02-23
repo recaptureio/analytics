@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.4.3 | MIT & BSD */
+/*! Recapture.io SDK v1.4.4 | MIT & BSD */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -132,7 +132,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
-	  return null;
+	  // expose ra prototype
+	  return instance;
 	};
 
 	module.exports = root[libName];

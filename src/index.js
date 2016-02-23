@@ -75,7 +75,8 @@ root[libName] = function() {
     }
   }
 
-  return null;
+  // expose ra prototype
+  return instance;
 };
 
 module.exports = root[libName];
