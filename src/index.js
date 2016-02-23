@@ -59,6 +59,23 @@ function create() {
   return obj;
 }
 
-// override global
-root[libName] = create();
+var instance = create();
+
+// keep signature but dont use queue
+root[libName] = function() {
+  var q = [].slice.call(arguments);
+  var method = q.shift();
+  var args = q.shift();
+
+  if (instance[method]) {
+    if (method === 'on') {
+      instance[method].apply(ee, args);
+    } else {
+      instance[method].apply(instance, args);
+    }
+  }
+
+  return null;
+};
+
 module.exports = root[libName];

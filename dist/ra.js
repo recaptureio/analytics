@@ -1,4 +1,4 @@
-/*! Recapture.io SDK v1.4.2 | MIT & BSD */
+/*! Recapture.io SDK v1.4.3 | MIT & BSD */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -116,8 +116,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return obj;
 	}
 
-	// override global
-	root[libName] = create();
+	var instance = create();
+
+	// keep signature but dont use queue
+	root[libName] = function() {
+	  var q = [].slice.call(arguments);
+	  var method = q.shift();
+	  var args = q.shift();
+
+	  if (instance[method]) {
+	    if (method === 'on') {
+	      instance[method].apply(ee, args);
+	    } else {
+	      instance[method].apply(instance, args);
+	    }
+	  }
+
+	  return null;
+	};
+
 	module.exports = root[libName];
 
 
