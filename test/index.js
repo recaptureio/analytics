@@ -1,6 +1,6 @@
 var store = require('store');
 var cookies = require('cookies-js');
-var ra = require('../dist/ra');
+var ra = require('../dist/ra')();
 
 function isFunction(value) {
   var functionTag = '[object Function]';
